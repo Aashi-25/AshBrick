@@ -85,6 +85,8 @@ const LandingPage = () => {
       {showAuth && (
         <AuthPage 
           onClose={() => setShowAuth(false)} 
+      )
+      }
     </div>
     <AuthProvider>
       <Router>
@@ -118,6 +120,7 @@ const LandingPage = () => {
         </Routes>
       </Router>
     </AuthProvider>
+  )
   );
 }
 

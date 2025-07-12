@@ -20,6 +20,10 @@ const AdminDashboard = () => {
   const { user, profile, signOut } = useAuth()
   const [activeTab, setActiveTab] = useState('overview')
 
+  // Added filter state
+  const [roleFilter, setRoleFilter] = useState('All Roles')
+  const [statusFilter, setStatusFilter] = useState('All Status')
+
   const sidebarItems = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
     { id: 'reports', label: 'Reports', icon: FileText },
@@ -76,9 +80,15 @@ const AdminDashboard = () => {
   ]
 
   const generateESGReport = () => {
-    // Placeholder for ESG report generation
     alert('ESG Report generation started. You will receive an email when ready.')
   }
+
+  // Filter users based on filters
+  const filteredUsers = mockUsers.filter(u => {
+    const roleMatch = roleFilter === 'All Roles' || u.role === roleFilter
+    const statusMatch = statusFilter === 'All Status' || u.status === statusFilter
+    return roleMatch && statusMatch
+  })
 
   const renderContent = () => {
     switch (activeTab) {
@@ -226,13 +236,21 @@ const AdminDashboard = () => {
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-bold text-gray-900">User Management</h2>
               <div className="flex space-x-3">
-                <select className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-400 focus:border-transparent outline-none">
+                <select
+                  value={roleFilter}
+                  onChange={e => setRoleFilter(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-400 focus:border-transparent outline-none"
+                >
                   <option>All Roles</option>
                   <option>Supplier</option>
                   <option>Buyer</option>
                   <option>Admin</option>
                 </select>
-                <select className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-400 focus:border-transparent outline-none">
+                <select
+                  value={statusFilter}
+                  onChange={e => setStatusFilter(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-400 focus:border-transparent outline-none"
+                >
                   <option>All Status</option>
                   <option>Active</option>
                   <option>Inactive</option>
@@ -265,7 +283,7 @@ const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {mockUsers.map((user) => (
+                  {filteredUsers.map((user) => (
                     <tr key={user.id}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -390,7 +408,9 @@ const AdminDashboard = () => {
                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                           transaction.status === 'Completed'
                             ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
+                            : transaction.status === 'Pending'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-red-100 text-red-800'
                         }`}>
                           {transaction.status}
                         </span>
@@ -407,89 +427,38 @@ const AdminDashboard = () => {
         )
 
       default:
-        return (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">{activeTab}</h2>
-            <p className="text-gray-600">This section is coming soon...</p>
-          </div>
-        )
+        return null
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-sm border-r border-gray-200 flex flex-col">
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-xl flex items-center justify-center">
-              <Factory className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
-                AshBrick
-              </h1>
-              <p className="text-sm text-gray-600">Admin Portal</p>
-            </div>
-          </div>
-        </div>
-
-        <nav className="flex-1 p-4">
-          <ul className="space-y-2">
-            {sidebarItems.map((item) => {
-              const IconComponent = item.icon
-              return (
-                <li key={item.id}>
-                  <button
-                    onClick={() => setActiveTab(item.id)}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-colors ${
-                      activeTab === item.id
-                        ? 'bg-gradient-to-r from-green-400 to-blue-500 text-white'
-                        : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                  >
-                    <IconComponent className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
-        </nav>
-
-        <div className="p-4 border-t border-gray-200">
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-              <Shield className="w-5 h-5 text-gray-600" />
-            </div>
-            <div>
-              <p className="font-medium text-gray-900">{user?.email}</p>
-              <p className="text-sm text-gray-600">{profile?.role}</p>
-            </div>
-          </div>
+    <div className="flex min-h-screen">
+      <aside className="w-64 bg-white border-r border-gray-200 p-6 flex flex-col">
+        <h1 className="text-2xl font-bold mb-8 text-gray-900">Admin Dashboard</h1>
+        <nav className="flex flex-col space-y-4">
+          {sidebarItems.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
+                activeTab === id
+                  ? 'bg-gradient-to-r from-green-400 to-blue-500 text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <Icon className="w-5 h-5" />
+              <span>{label}</span>
+            </button>
+          ))}
           <button
             onClick={signOut}
-            className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+            className="mt-auto px-4 py-2 rounded-lg text-red-600 hover:bg-red-100 font-semibold"
           >
             Sign Out
           </button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 capitalize">
-              {activeTab === 'overview' ? 'Admin Dashboard' : activeTab.replace('-', ' ')}
-            </h1>
-            <p className="text-gray-600">
-              Welcome back, {user?.email?.split('@')[0]}!
-            </p>
-          </div>
-          {renderContent()}
-        </div>
-      </div>
+        </nav>
+      </aside>
+      <main className="flex-1 p-8 bg-gray-50">{renderContent()}</main>
     </div>
   )
 }

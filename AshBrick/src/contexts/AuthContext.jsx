@@ -1,98 +1,135 @@
-import { createContext, useContext, useEffect, useState } from 'react'
-import { supabase, authHelpers } from '../lib/supabase'
-
-const AuthContext = createContext({})
+import { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
+import { useNavigate } from "react-router-dom";
+const AuthContext = createContext();
 
 export const useAuth = () => {
-  const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-  return context
-}
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
+  return context;
+};
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
-  const [profile, setProfile] = useState(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session?.user) {
-        setUser(session.user)
-        await fetchUserProfile(session.user.id)
-      }
-      setLoading(false)
-    }
-
-    getInitialSession()
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (session?.user) {
-          setUser(session.user)
-          await fetchUserProfile(session.user.id)
-        } else {
-          setUser(null)
-          setProfile(null)
-        }
-        setLoading(false)
-      }
-    )
-
-    return () => subscription.unsubscribe()
-  }, [])
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchUserProfile = async (userId) => {
     try {
-      const { data, error } = await authHelpers.getUserProfile(userId)
-      if (error) throw error
-      setProfile(data)
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+
+      if (error) throw error;
+      console.log("✅ Profile fetched:", data);
+      setProfile(data);
     } catch (error) {
-      console.error('Error fetching profile:', error)
+      console.error("❌ Error fetching profile:", error.message);
+      setProfile(null);
     }
-  }
+  };
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        setLoading(true);
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+        if (error) throw error;
+
+        const currentUser = session?.user || null;
+        setUser(currentUser);
+        if (currentUser) {
+          await fetchUserProfile(currentUser.id);
+        } else {
+          setProfile(null);
+        }
+      } catch (err) {
+        console.error("❌ Error in initAuth:", err.message);
+        setUser(null);
+        setProfile(null);
+      } finally {
+        setLoading(false); // ✅ MUST BE HERE
+      }
+    };
+
+    initAuth();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      try {
+        const currentUser = session?.user || null;
+        setUser(currentUser);
+        if (currentUser) {
+          await fetchUserProfile(currentUser.id);
+        } else {
+          setProfile(null);
+        }
+      } catch (err) {
+        console.error("❌ Error in onAuthStateChange:", err.message);
+        setUser(null);
+        setProfile(null);
+      } finally {
+        setLoading(false); // ✅ IMPORTANT!
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const signUp = async (email, password, role) => {
-    try {
-      setLoading(true)
-      const { data, error } = await authHelpers.signUp(email, password, role)
-      if (error) throw error
-      return { data, error: null }
-    } catch (error) {
-      return { data: null, error }
-    } finally {
-      setLoading(false)
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (data?.user) {
+      // Save role to 'profiles' table
+      await supabase.from("profiles").insert({
+        id: data.user.id,
+        email,
+        role,
+      });
     }
-  }
+
+    return { data, error };
+  };
 
   const signIn = async (email, password) => {
     try {
-      setLoading(true)
-      const { data, error } = await authHelpers.signIn(email, password)
-      if (error) throw error
-      return { data, error: null }
+      setLoading(true);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
+      return { data, error: null };
     } catch (error) {
-      return { data: null, error }
+      return { data: null, error };
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const signOut = async () => {
     try {
-      setLoading(true)
-      const { error } = await authHelpers.signOut()
-      if (error) throw error
+      setLoading(true);
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      setUser(null);
+      setProfile(null);
+      window.location.href = "/";
     } catch (error) {
-      console.error('Error signing out:', error)
+      console.error("❌ Error signing out:", error.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const value = {
     user,
@@ -102,12 +139,23 @@ export const AuthProvider = ({ children }) => {
     signIn,
     signOut,
     isAuthenticated: !!user,
-    role: profile?.role
-  }
+    role: profile?.role,
+    name: profile?.name || user?.email?.split("@")[0] || "User",
+  };
+
+  console.log("👤 User:", user);
+  console.log("🧾 Profile:", profile);
+  console.log("⌛ Loading:", loading);
 
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      {loading ? (
+        <div className="h-screen flex items-center justify-center text-lg text-gray-500">
+          Loading...
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
-  )
-}
+  );
+};

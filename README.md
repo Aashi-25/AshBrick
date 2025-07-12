@@ -178,24 +178,17 @@ AshBrick features secure, role-based authentication powered by **Supabase Auth**
 
 ```mermaid
 graph TD
-  User[User] -->|Login| Frontend
+  User[User] -->|Login / Voice Input| Frontend
   Frontend -->|Auth| SupabaseAuth
   Frontend -->|Data Fetch| Database
   Frontend -->|Role Context| JWTHandler
   JWTHandler -->|Access Control| Database
-
-  classDef frontend fill:#61dafb,stroke:#222;
-  classDef backend fill:#3ECF8E,stroke:#222;
-  classDef db fill:#ffa000,stroke:#222;
-  classDef auth fill:#673ab7,stroke:#222;
-
-  class Frontend frontend
-  class SupabaseAuth auth
-  class Database db
-  class JWTHandler backend
+  Frontend -->|AI Features| LLM
+  LLM -->|Intent/Reply| Frontend
+  Frontend -->|Notify| Firebase
+  Frontend -->|Impact Estimation| ImpactModule
 ```
 
----
 
 ## 🌐 Folder Structure
 

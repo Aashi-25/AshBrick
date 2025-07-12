@@ -13,6 +13,7 @@ import Impact from './components/Impact';
 import CTA from './components/CTA';
 import Footer from './components/Footer';
 import BackgroundBlobs from './components/BackgroundBlobs';
+import AuthPage from './components/AuthPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -60,11 +61,6 @@ const LandingPage = () => {
     }
   }
 
-  const handleAuthSuccess = (user) => {
-    setShowAuth(false);
-    // Navigation will be handled by the redirect logic above
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden">
       <BackgroundBlobs />
@@ -85,9 +81,14 @@ const LandingPage = () => {
       {showAuth && (
         <AuthPage 
           onClose={() => setShowAuth(false)} 
-      )
-      }
+        />
+      )}
     </div>
+  );
+};
+
+function App() {
+  return (
     <AuthProvider>
       <Router>
         <Routes>
@@ -120,7 +121,6 @@ const LandingPage = () => {
         </Routes>
       </Router>
     </AuthProvider>
-  )
   );
 }
 

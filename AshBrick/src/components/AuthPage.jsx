@@ -67,6 +67,12 @@ const AuthPage = ({ onClose, onSuccess }) => {
       return false;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setMessage({ type: "error", text: "Please enter a valid email address" });
+      return false;
+    }
+
     if (!isLogin) {
       if (formData.password !== formData.confirmPassword) {
         setMessage({ type: "error", text: "Passwords do not match" });
@@ -95,10 +101,15 @@ const AuthPage = ({ onClose, onSuccess }) => {
       if (isLogin) {
         const { data, error } = await signIn(formData.email, formData.password);
         if (error) throw error;
-        setMessage({ type: "success", text: "Login successful!" });
+        
+        setMessage({ type: "success", text: "Login successful! Redirecting..." });
+        
+        // Close modal after successful login
         setTimeout(() => {
-          onSuccess && onSuccess(data.user, formData.role); // ✅ Now passing role
+          onSuccess && onSuccess();
+          onClose();
         }, 1000);
+        
       } else {
         const { data, error } = await signUp(
           formData.email,
@@ -106,12 +117,26 @@ const AuthPage = ({ onClose, onSuccess }) => {
           formData.role
         );
         if (error) throw error;
+        
         setMessage({
           type: "success",
-          text: "Account created! Please check your email to verify your account.",
+          text: "Account created successfully! Please check your email to verify your account.",
         });
+        
+        // Switch to login mode after successful signup
+        setTimeout(() => {
+          setIsLogin(true);
+          setFormData({
+            email: formData.email,
+            password: "",
+            confirmPassword: "",
+            role: "Buyer",
+          });
+          setMessage({ type: "", text: "" });
+        }, 3000);
       }
     } catch (error) {
+      console.error("Auth error:", error);
       setMessage({
         type: "error",
         text: error.message || "An error occurred. Please try again.",
@@ -262,6 +287,7 @@ const AuthPage = ({ onClose, onSuccess }) => {
                 />
               </div>
             </div>
+
             {/* Password */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-white">
@@ -329,6 +355,7 @@ const AuthPage = ({ onClose, onSuccess }) => {
                   type="button"
                   onClick={handleForgotPassword}
                   className="text-sm text-green-400 hover:text-green-500 font-medium"
+                  disabled={loading}
                 >
                   Forgot password?
                 </button>
@@ -368,6 +395,7 @@ const AuthPage = ({ onClose, onSuccess }) => {
                   });
                 }}
                 className="ml-1 text-green-400 hover:text-green-500 font-medium"
+                disabled={loading}
               >
                 {isLogin ? "Sign up" : "Sign in"}
               </button>

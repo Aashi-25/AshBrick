@@ -1,4 +1,3 @@
-// App.jsx
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import Navbar from "./components/Navbar";
@@ -14,10 +13,10 @@ import CTA from "./components/CTA";
 import Footer from "./components/Footer";
 import BackgroundBlobs from "./components/BackgroundBlobs";
 import AuthPage from "./components/AuthPage";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ResetPassword from "./components/ResetPassword";
 
-// 🔐 Protected Route
+// 🔐 Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, profile, loading } = useAuth();
 
@@ -32,30 +31,51 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     );
   }
 
-  if (!user) return <Navigate to="/" replace />;
-  if (allowedRoles && !allowedRoles.includes(profile?.role))
+  if (!user) {
     return <Navigate to="/" replace />;
+  }
+
+  if (allowedRoles && profile && !allowedRoles.includes(profile.role)) {
+    return <Navigate to="/" replace />;
+  }
 
   return children;
 };
 
-// 🏠 Landing Page
+// 🏠 Landing Page Component
 const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
-  const { user, profile } = useAuth();
+  const { user, profile, loading } = useAuth();
 
-  if (user && profile) {
-    switch (profile.role) {
-      case "Supplier":
-        return <Navigate to="/supplier-dashboard" replace />;
-      case "Buyer":
-        return <Navigate to="/buyer-dashboard" replace />;
-      case "Admin":
-        return <Navigate to="/admin" replace />;
-      default:
-        return <Navigate to="/buyer-dashboard" replace />;
+  // Auto-redirect authenticated users to their dashboard
+  useEffect(() => {
+    if (!loading && user && profile) {
+      const redirectPath = {
+        'Supplier': '/supplier-dashboard',
+        'Buyer': '/buyer-dashboard', 
+        'Admin': '/admin'
+      }[profile.role] || '/buyer-dashboard';
+      
+      window.location.href = redirectPath;
     }
+  }, [user, profile, loading]);
+
+  // Show loading while checking auth state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Only show landing page if user is not authenticated
+  if (user && profile) {
+    return null; // Will redirect via useEffect
   }
 
   return (
@@ -84,11 +104,13 @@ const LandingPage = () => {
   );
 };
 
-// 🌐 Main App
+// 🌐 Main App Component
 function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      
       <Route
         path="/supplier-dashboard"
         element={
@@ -97,6 +119,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+      
       <Route
         path="/buyer-dashboard"
         element={
@@ -105,6 +128,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+      
       <Route
         path="/admin"
         element={
@@ -113,8 +137,9 @@ function App() {
           </ProtectedRoute>
         }
       />
+      
+      {/* Catch all route - redirect to home */}
       <Route path="*" element={<Navigate to="/" replace />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
     </Routes>
   );
 }

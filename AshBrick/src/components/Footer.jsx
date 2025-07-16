@@ -1,7 +1,7 @@
 import { Factory } from 'lucide-react';
 
 const Footer = () => (
-  <footer className="relative z-10 px-6 py-12 border-t border-white/10">
+  <footer className="relative z-10 px-6 py-12 glass-dark border-t border-white/10">
     <div className="max-w-7xl mx-auto text-center">
       <div className="flex items-center justify-center space-x-3 mb-4">
         <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-xl flex items-center justify-center">

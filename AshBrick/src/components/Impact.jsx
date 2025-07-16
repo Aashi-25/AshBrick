@@ -57,7 +57,7 @@ const Impact = () => {
             See the dramatic difference fly ash bricks make
           </p>
         </div>
-        <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+        <div className="glass-dark p-8">
           <div className="grid md:grid-cols-3 gap-8 text-center">
             <div className="space-y-4 left-panel" ref={leftRef}>
               <div className="text-red-400 text-lg font-semibold">Traditional Brick</div>

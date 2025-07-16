@@ -1,39 +1,66 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   BarChart3, 
   MapPin, 
   Leaf, 
   Truck 
 } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const Features = () => {
   const [activeTab, setActiveTab] = useState('supply');
+  const cardRefs = useRef([]);
+
+  useEffect(() => {
+    cardRefs.current.forEach((card) => {
+      if (card) {
+        gsap.fromTo(
+          card,
+          { y: 50, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.2,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: card,
+              start: 'top 80%',
+              toggleActions: 'play reverse play reverse',
+            },
+          }
+        );
+      }
+    });
+  }, []);
 
   const features = [
     {
       id: 'supply',
-      icon: <BarChart3 className="w-6 h-6" />,
+      icon: <BarChart3 className="w-6 h-6" />, 
       title: 'Supply Intelligence',
       description: 'Real-time fly ash availability mapping with satellite imagery and IoT sensors',
       tech: ['GIS Integration', 'Google Earth Engine', 'IoT Sensors']
     },
     {
       id: 'demand',
-      icon: <MapPin className="w-6 h-6" />,
+      icon: <MapPin className="w-6 h-6" />, 
       title: 'Demand Matching',
       description: 'AI-powered matching engine connecting ash suppliers to construction sites',
       tech: ['Dynamic Routing', 'OR-Tools', 'Smart Algorithms']
     },
     {
       id: 'carbon',
-      icon: <Leaf className="w-6 h-6" />,
+      icon: <Leaf className="w-6 h-6" />, 
       title: 'Carbon Tracker',
       description: 'Automated ESG reporting and carbon credit documentation',
       tech: ['API Integration', 'Gold Standard', 'PDF Reports']
     },
     {
       id: 'transaction',
-      icon: <Truck className="w-6 h-6" />,
+      icon: <Truck className="w-6 h-6" />, 
       title: 'Transaction Hub',
       description: 'End-to-end commerce with escrow payments and quality verification',
       tech: ['UPI Integration', 'Quality Verification', 'Logistics']
@@ -52,13 +79,14 @@ const Features = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 mb-12">
+        <div className="flex flex-col items-end gap-8 mb-12">
           {features.map((feature, index) => (
             <div 
               key={feature.id}
-              className={`p-8 rounded-2xl backdrop-blur-sm border transition-all duration-500 cursor-pointer ${
+              ref={el => cardRefs.current[index] = el}
+              className={`feature-card w-full md:w-1/2 p-8 rounded-2xl backdrop-blur-sm border transition-all duration-500 cursor-pointer ${
                 activeTab === feature.id 
-                  ? 'bg-gradient-to-br from-green-400/20 to-blue-500/20 border-green-400 scale-105' 
+                  ? 'bg-gradient-to-br from-green-400/20 to-blue-500/20 border-green-400' 
                   : 'bg-white/5 border-white/10 hover:bg-white/10'
               }`}
               onClick={() => setActiveTab(feature.id)}

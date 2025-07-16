@@ -1,32 +1,52 @@
-import { Play } from 'lucide-react';
+import React from 'react';
+import heroVideo from '../assets/background.mp4';
 
 const Hero = () => (
-  <section className="relative z-10 px-6 py-20">
-    <div className="max-w-7xl mx-auto text-center">
-      <div className="mb-8 animate-fade-in">
-        <span className="inline-block bg-gradient-to-r from-green-400 to-blue-500 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-          🚀 AI-Powered Green Construction
-        </span>
-      </div>
-      <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-green-200 to-blue-200 bg-clip-text text-transparent animate-slide-up">
-        Turning Toxic Waste into<br />
-        <span className="bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
-          Green Construction Gold
-        </span>
+  <section
+    className="relative flex items-center justify-center"
+    style={{
+      height: "500px",
+      overflow: "hidden",
+    }}
+  >
+    {/* Background Video */}
+    <video
+      className="absolute top-0 left-0 w-full h-full object-cover"
+      src={heroVideo}
+      autoPlay
+      loop
+      muted
+      playsInline
+      style={{
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+        zIndex: 1,
+      }}
+    />
+    {/* Overlay for better text visibility */}
+    <div
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        background: "rgba(0,0,0,0.3)",
+        zIndex: 2,
+      }}
+    />
+    {/* Hero Content */}
+    <div
+      className="relative z-10 text-center w-full"
+      style={{ color: "white" }}
+    >
+      <h1 className="text-5xl md:text-7xl font-bold mb-6">
+        Turning Toxic Waste into Green Construction Gold
       </h1>
-      <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto animate-slide-up delay-200">
-        The world's first AI-powered B2B marketplace transforming fly ash waste into sustainable building materials.
-        Solve environmental liability while cutting construction costs by 40%.
+      <p className="text-2xl font-bold">
+        Solve environmental liability while cutting construction costs by <span style={{color: "#22d3ee"}}>40%</span>
       </p>
-      <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up delay-400">
-        <button className="bg-gradient-to-r from-green-400 to-blue-500 px-8 py-4 rounded-full font-semibold text-lg hover:scale-105 transition-transform flex items-center space-x-2">
-          <Play className="w-5 h-5" />
-          <span>Watch Demo</span>
-        </button>
-        <button className="border-2 border-green-400 px-8 py-4 rounded-full font-semibold text-lg hover:bg-green-400 hover:text-gray-900 transition-colors">
-          Start Free Trial
-        </button>
-      </div>
     </div>
   </section>
 );

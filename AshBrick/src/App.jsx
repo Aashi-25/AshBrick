@@ -16,6 +16,8 @@ import BackgroundBlobs from "./components/BackgroundBlobs";
 import AuthPage from "./components/AuthPage";
 import { useState } from "react";
 import ResetPassword from "./components/ResetPassword";
+import TeamCarousel from "./components/TeamCarousel";
+
 
 // 🔐 Protected Route
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -59,7 +61,7 @@ const LandingPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden">
+    <div className="min-h-screen bg-site-image text-white overflow-hidden">
       <BackgroundBlobs />
       <Navbar
         isMenuOpen={isMenuOpen}
@@ -72,6 +74,7 @@ const LandingPage = () => {
       <AIFeatures />
       <Impact />
       <CTA onAuthClick={() => setShowAuth(true)} />
+      <TeamCarousel />
       <Footer />
 
       {showAuth && (

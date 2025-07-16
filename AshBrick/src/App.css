@@ -29,7 +29,19 @@
 }
 
 .card {
-  padding: 2em;
+  background: rgba(0, 0, 0, 0.4);  /* or rgba(255,255,255,0.1) with white text */
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+}
+.card h2 {
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+.card p {
+  color: #e0e0e0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .read-the-docs {
@@ -81,4 +93,23 @@
 
 .delay-2000 {
   animation-delay: 2s;
+}
+
+.bg-site-image {
+  background-image: url('./assets/background1.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  width: 100vw;
+}
+
+.site-bg-overlay {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 0;
+  pointer-events: none;
 }

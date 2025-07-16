@@ -21,6 +21,9 @@
   justify-content: center;
   position: relative;
   min-height: 320px;
+  gap: 2rem;
+  width: 700px; /* or auto, but must be enough for all cards and arrows */
+  margin: 0 auto;
 }
 .carousel-track {
   display: flex;
@@ -30,10 +33,11 @@
   width: 420px;
   height: 260px;
   perspective: 1000px;
+  margin: 0 auto;
 }
 .card {
-  width: 180px;
-  height: 240px;
+  width: 210px;
+  height: 300px;
   background: rgba(0,0,0,0.4);
   border-radius: 16px;
   box-shadow: 0 0 30px rgba(0,0,0,0.3);
@@ -60,28 +64,32 @@
 .card.center {
   transform: translateX(-50%) scale(1);
   opacity: 1;
-  z-index: 3;
+  z-index: 10;
   box-shadow: 0 4px 32px 0 rgba(0,0,0,0.4);
 }
 .card.right-1 {
-  transform: translateX(60%) scale(0.85);
-  opacity: 0.7;
+  transform: translateX(70%) scale(0.85);
+  opacity: 1;
   z-index: 2;
+  filter: grayscale(100%);
+}
+.card.left-1 {
+  transform: translateX(-80%) scale(0.85);
+  opacity:1;
+  z-index: 2;
+  filter: grayscale(100%);
 }
 .card.right-2 {
   transform: translateX(120%) scale(0.7);
-  opacity: 0.4;
+  opacity: 1;
   z-index: 1;
-}
-.card.left-1 {
-  transform: translateX(-150%) scale(0.85);
-  opacity: 0.7;
-  z-index: 2;
+   filter: grayscale(100%);
 }
 .card.left-2 {
-  transform: translateX(-250%) scale(0.7);
-  opacity: 0.4;
+  transform: translateX(-130%) scale(0.7);
+  opacity:1;
   z-index: 1;
+   filter: grayscale(100%);
 }
 .card.hidden {
   opacity: 0;
@@ -99,9 +107,12 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 4;
+  z-index: 6;
   transition: background 0.2s;
-  margin: 0 1rem;
+  /* Remove margin if present, or set to 0 2rem for more space */
+  margin: 0 3rem;
+  /* Remove any absolute positioning */
+  position: static;
 }
 .nav-arrow:hover {
   background: #57a818;

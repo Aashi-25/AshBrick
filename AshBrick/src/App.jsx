@@ -17,6 +17,7 @@ import AuthPage from "./components/AuthPage";
 import { useState } from "react";
 import ResetPassword from "./components/ResetPassword";
 import TeamCarousel from "./components/TeamCarousel";
+import ConnectSteps from "./components/ConnectSteps";
 
 
 // 🔐 Protected Route
@@ -74,6 +75,7 @@ const LandingPage = () => {
       <AIFeatures />
       <Impact />
       <CTA onAuthClick={() => setShowAuth(true)} />
+      <ConnectSteps />
       <TeamCarousel />
       <Footer />
 

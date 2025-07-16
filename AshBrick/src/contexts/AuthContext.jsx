@@ -93,7 +93,13 @@ export const AuthProvider = ({ children }) => {
       }
     });
 
-    return () => subscription.unsubscribe();
+    // Fallback: force loading to false after 5 seconds
+    const timeout = setTimeout(() => setLoading(false), 5000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const signUp = async (email, password, role) => {

@@ -3,10 +3,10 @@ import heroVideo from '../assets/background.mp4';
 
 const Hero = () => (
   <section
-    className="relative flex items-center justify-center"
+    className="relative flex items-center justify-center min-h-screen"
     style={{
-      height: "500px",
-      overflow: "hidden",
+      height: "90vh",
+      // Removed overflow: hidden
     }}
   >
     {/* Background Video */}
@@ -22,6 +22,9 @@ const Hero = () => (
         height: "100%",
         objectFit: "cover",
         zIndex: 1,
+        position: "absolute",
+        top: 0,
+        left: 0,
       }}
     />
     {/* Overlay for better text visibility */}
@@ -37,15 +40,25 @@ const Hero = () => (
       }}
     />
     {/* Hero Content */}
-    <div
-      className="relative z-10 text-center w-full"
-      style={{ color: "white" }}
-    >
-      <h1 className="text-5xl md:text-7xl font-bold mb-6">
+    <div className="relative z-10 text-center w-full max-w-3xl mx-auto px-8 py-10">
+      <h1
+        className="text-5xl md:text-7xl font-extrabold mb-6"
+        style={{
+          color: '#fff',
+          textShadow: '0 6px 32px rgba(0,0,0,0.95), 0 2px 8px #000, 0 1px 0 #222',
+          letterSpacing: '-0.03em',
+        }}
+      >
         Turning Toxic Waste into Green Construction Gold
       </h1>
-      <p className="text-2xl font-bold">
-        Solve environmental liability while cutting construction costs by <span style={{color: "#22d3ee"}}>40%</span>
+      <p
+        className="text-2xl font-bold"
+        style={{
+          color: '#fff',
+          textShadow: '0 2px 12px rgba(0,0,0,0.95), 0 1px 0 #222',
+        }}
+      >
+        Solve environmental liability while cutting construction costs by <span style={{color: "#22d3ee", textShadow: "0 2px 8px #22d3ee, 0 1px 0 #222"}}>40%</span>
       </p>
     </div>
   </section>

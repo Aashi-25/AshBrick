@@ -84,11 +84,7 @@ const Features = () => {
             <div 
               key={feature.id}
               ref={el => cardRefs.current[index] = el}
-              className={`feature-card w-full md:w-1/2 p-8 rounded-2xl backdrop-blur-sm border transition-all duration-500 cursor-pointer ${
-                activeTab === feature.id 
-                  ? 'bg-gradient-to-br from-green-400/20 to-blue-500/20 border-green-400' 
-                  : 'bg-white/5 border-white/10 hover:bg-white/10'
-              }`}
+              className={`feature-card w-full md:w-1/2 p-8 glass-dark transition-all duration-500 cursor-pointer ${activeTab === feature.id ? 'ring-2 ring-cyan-400' : ''}`}
               onClick={() => setActiveTab(feature.id)}
             >
               <div className="flex items-center space-x-4 mb-4">

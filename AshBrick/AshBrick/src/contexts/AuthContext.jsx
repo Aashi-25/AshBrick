@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 
@@ -14,14 +15,13 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true); // for auth
-  const [profileLoading, setProfileLoading] = useState(true); // for profile
+  const [loading, setLoading] = useState(true);
 
   const fetchUserProfile = async (userId) => {
-    setProfileLoading(true);
     try {
+      // Check if Supabase is properly configured
       if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-        console.warn("⚠️ Supabase not configured.");
+        console.warn("⚠️ Supabase not configured. Skipping profile fetch.");
         return null;
       }
 
@@ -32,21 +32,21 @@ export const AuthProvider = ({ children }) => {
         .single();
 
       if (error) {
-        if (error.code === "PGRST116") {
-          console.warn("⚠️ Profiles table not found.");
+        // If profiles table doesn't exist yet, that's okay
+        if (error.code === 'PGRST116') {
+          console.warn("⚠️ Profiles table not found. User will have basic profile.");
           return null;
         }
         console.error("Error fetching profile:", error.message);
         return null;
       }
-
+      
+      console.log("✅ Profile fetched:", data);
       setProfile(data);
       return data;
     } catch (error) {
       console.error("❌ Error fetching profile:", error.message);
       return null;
-    } finally {
-      setProfileLoading(false);
     }
   };
 
@@ -55,27 +55,30 @@ export const AuthProvider = ({ children }) => {
 
     const initAuth = async () => {
       try {
+        console.log("🔄 Initializing auth...");
         setLoading(true);
+        
         const { data: { session }, error } = await supabase.auth.getSession();
-
+        
         if (error) {
           console.error("Session error:", error.message);
           if (mounted) {
             setUser(null);
             setProfile(null);
-            setProfileLoading(false);
           }
           return;
         }
 
         const currentUser = session?.user || null;
+        console.log("👤 Current user:", currentUser?.email || "None");
+        
         if (mounted) {
           setUser(currentUser);
+          
           if (currentUser) {
             await fetchUserProfile(currentUser.id);
           } else {
             setProfile(null);
-            setProfileLoading(false);
           }
         }
       } catch (err) {
@@ -83,17 +86,21 @@ export const AuthProvider = ({ children }) => {
         if (mounted) {
           setUser(null);
           setProfile(null);
-          setProfileLoading(false);
         }
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
     initAuth();
 
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log("🔄 Auth state changed:", event, session?.user?.email || "No user");
+        
         if (!mounted) return;
 
         try {
@@ -104,13 +111,11 @@ export const AuthProvider = ({ children }) => {
             await fetchUserProfile(currentUser.id);
           } else {
             setProfile(null);
-            setProfileLoading(false);
           }
         } catch (err) {
           console.error("❌ Error in onAuthStateChange:", err.message);
           setUser(null);
           setProfile(null);
-          setProfileLoading(false);
         } finally {
           setLoading(false);
         }
@@ -123,44 +128,50 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
- const signUp = async (email, password, role = "Buyer") => {
-  try {
-    setLoading(true);
-    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-      throw new Error("Supabase is not configured.");
-    }
-
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { role },
-        // ⬇️ Add this line to support email confirmation redirect
-        emailRedirectTo: `${window.location.origin}/confirmed`
+  const signUp = async (email, password, role = 'Buyer') => {
+    try {
+      setLoading(true);
+      
+      // Check if Supabase is properly configured
+      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        throw new Error("Supabase is not configured. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your Secrets.");
       }
-    });
 
-    if (error) throw error;
+      console.log("📝 Signing up user:", email, "with role:", role);
 
-    // ⛔ Don't assume user is signed in until email is confirmed
-    setUser(null);
-    setProfile(null);
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            role: role
+          }
+        }
+      });
 
-    return { data, error: null };
-  } catch (error) {
-    return { data: null, error };
-  } finally {
-    setLoading(false);
-  }
-};
+      if (error) throw error;
 
+      console.log("✅ User signed up:", data.user?.email);
+      
+      return { data, error: null };
+    } catch (error) {
+      console.error("❌ Sign up error:", error.message);
+      return { data: null, error };
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const signIn = async (email, password) => {
     try {
       setLoading(true);
+      
+      // Check if Supabase is properly configured
       if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-        throw new Error("Supabase is not configured.");
+        throw new Error("Supabase is not configured. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your Secrets.");
       }
+
+      console.log("🔐 Signing in user:", email);
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -168,8 +179,12 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (error) throw error;
+
+      console.log("✅ User signed in:", data.user?.email);
+      
       return { data, error: null };
     } catch (error) {
+      console.error("❌ Sign in error:", error.message);
       return { data: null, error };
     } finally {
       setLoading(false);
@@ -179,14 +194,21 @@ export const AuthProvider = ({ children }) => {
   const signOut = async () => {
     try {
       setLoading(true);
+      
+      console.log("🚪 Signing out user...");
+      
       const { error } = await supabase.auth.signOut();
+      
       if (error) throw error;
 
       setUser(null);
       setProfile(null);
-      setProfileLoading(false);
-
+      
+      console.log("✅ User signed out");
+      
+      // Redirect to home
       window.location.href = "/";
+      
     } catch (error) {
       console.error("❌ Error signing out:", error.message);
     } finally {
@@ -198,12 +220,11 @@ export const AuthProvider = ({ children }) => {
     user,
     profile,
     loading,
-    profileLoading,
     signUp,
     signIn,
     signOut,
     isAuthenticated: !!user,
-    role: profile?.role || user?.user_metadata?.role || "Buyer",
+    role: profile?.role || user?.user_metadata?.role || 'Buyer',
     name: profile?.name || user?.email?.split("@")[0] || "User",
   };
 

@@ -14,57 +14,83 @@ import Footer from "./components/Footer";
 import BackgroundBlobs from "./components/BackgroundBlobs";
 import AuthPage from "./components/AuthPage";
 import ResetPassword from "./components/ResetPassword";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-// ✅ Loader UI component
-const FullPageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-    <div className="text-white text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-      <p>Loading...</p>
-    </div>
-  </div>
-);
-
-// ✅ Protected Route Component
+// Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { user, profile, loading, profileLoading } = useAuth();
+  const { user, profile, loading } = useAuth();
 
-  if (loading || profileLoading) return <FullPageLoader />;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
-  if (!user) return <Navigate to="/" replace />;
-
-  const userRole = profile?.role || user?.user_metadata?.role || "Buyer";
-  if (allowedRoles && !allowedRoles.includes(userRole)) {
+  if (!user) {
     return <Navigate to="/" replace />;
+  }
+
+  if (allowedRoles) {
+    const userRole = profile?.role || user?.user_metadata?.role || 'Buyer';
+    if (!allowedRoles.includes(userRole)) {
+      return <Navigate to="/" replace />;
+    }
   }
 
   return children;
 };
 
-// ✅ Landing Page Component
+// Landing Page Component
 const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
-  const { user, profile, loading, profileLoading } = useAuth();
+  const { user, profile, loading } = useAuth();
 
-  if (loading || profileLoading) return <FullPageLoader />;
+  // Auto-redirect authenticated users to their dashboard
+  useEffect(() => {
+    if (!loading && user) {
+      const userRole = profile?.role || user?.user_metadata?.role || 'Buyer';
+      const redirectPath = {
+        'Supplier': '/supplier-dashboard',
+        'Buyer': '/buyer-dashboard', 
+        'Admin': '/admin-dashboard'
+      }[userRole] || '/buyer-dashboard';
+      
+      console.log("🔀 Redirecting user to:", redirectPath, "with role:", userRole);
+      window.location.href = redirectPath;
+    }
+  }, [user, profile, loading]);
 
+  // Show loading while checking auth state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Only show landing page if user is not authenticated
   if (user) {
-    const userRole = profile?.role || user?.user_metadata?.role || "Buyer";
-    const redirectPath = {
-      Supplier: "/supplier-dashboard",
-      Buyer: "/buyer-dashboard",
-      Admin: "/admin-dashboard",
-    }[userRole] || "/buyer-dashboard";
-
-    return <Navigate to={redirectPath} replace />;
+    return null; // Will redirect via useEffect
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden">
       <BackgroundBlobs />
-      <Navbar isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} onAuthClick={() => setShowAuth(true)} />
+      <Navbar
+        isMenuOpen={isMenuOpen}
+        setIsMenuOpen={setIsMenuOpen}
+        onAuthClick={() => setShowAuth(true)}
+      />
       <Hero onAuthClick={() => setShowAuth(true)} />
       <Metrics />
       <Features />
@@ -72,6 +98,7 @@ const LandingPage = () => {
       <Impact />
       <CTA onAuthClick={() => setShowAuth(true)} />
       <Footer />
+
       {showAuth && (
         <AuthPage
           onClose={() => setShowAuth(false)}
@@ -82,17 +109,13 @@ const LandingPage = () => {
   );
 };
 
-// ✅ Main App Component
+// Main App Component
 function App() {
-  const { loading, profileLoading } = useAuth();
-
-  if (loading || profileLoading) return <FullPageLoader />;
-
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-
+      
       <Route
         path="/supplier-dashboard"
         element={
@@ -101,6 +124,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+      
       <Route
         path="/buyer-dashboard"
         element={
@@ -109,6 +133,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+      
       <Route
         path="/admin-dashboard"
         element={
@@ -117,6 +142,8 @@ function App() {
           </ProtectedRoute>
         }
       />
+      
+      {/* Catch all route - redirect to home */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
-
 import {
   Factory,
   Mail,
@@ -104,7 +103,6 @@ const AuthPage = ({ onClose, onSuccess }) => {
         
         setMessage({ type: "success", text: "Login successful! Redirecting..." });
         
-        // Close modal after successful login
         setTimeout(() => {
           onSuccess && onSuccess();
           onClose();
@@ -123,7 +121,6 @@ const AuthPage = ({ onClose, onSuccess }) => {
           text: "Account created successfully! Please check your email to verify your account.",
         });
         
-        // Switch to login mode after successful signup
         setTimeout(() => {
           setIsLogin(true);
           setFormData({
@@ -269,7 +266,6 @@ const AuthPage = ({ onClose, onSuccess }) => {
               </div>
             )}
 
-            {/* Email */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-white">
                 Email Address
@@ -288,7 +284,6 @@ const AuthPage = ({ onClose, onSuccess }) => {
               </div>
             </div>
 
-            {/* Password */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-white">
                 Password
@@ -317,7 +312,6 @@ const AuthPage = ({ onClose, onSuccess }) => {
               </div>
             </div>
 
-            {/* Confirm Password */}
             {!isLogin && (
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-white">
@@ -348,7 +342,6 @@ const AuthPage = ({ onClose, onSuccess }) => {
               </div>
             )}
 
-            {/* Forgot Password */}
             {isLogin && (
               <div className="text-right">
                 <button
@@ -362,7 +355,6 @@ const AuthPage = ({ onClose, onSuccess }) => {
               </div>
             )}
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
@@ -379,7 +371,6 @@ const AuthPage = ({ onClose, onSuccess }) => {
             </button>
           </form>
 
-          {/* Toggle Login/Signup */}
           <div className="mt-6 text-center">
             <p className="text-white/70 text-sm">
               {isLogin ? "Don't have an account?" : "Already have an account?"}
@@ -402,7 +393,6 @@ const AuthPage = ({ onClose, onSuccess }) => {
             </p>
           </div>
 
-          {/* Terms */}
           {!isLogin && (
             <div className="mt-4 text-center">
               <p className="text-xs text-white/40">

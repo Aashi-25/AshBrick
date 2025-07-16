@@ -9,10 +9,10 @@ import {
   BarChart3,
   MapPin,
   Upload,
-  FileText,
   DollarSign,
   Truck,
-  Calendar
+  Calendar,
+  LogOut
 } from 'lucide-react'
 
 const SupplierDashboard = () => {
@@ -62,7 +62,13 @@ const SupplierDashboard = () => {
   const handleSubmitListing = (e) => {
     e.preventDefault()
     console.log('New listing:', ashListing)
-    // Handle listing submission
+    alert('Listing created successfully!')
+    setAshListing({
+      volume: '',
+      location: '',
+      price: '',
+      description: ''
+    })
   }
 
   const renderContent = () => {
@@ -156,7 +162,7 @@ const SupplierDashboard = () => {
                     value={ashListing.location}
                     onChange={handleInputChange}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-400 focus:border-transparent outline-none"
-                    placeholder="Enter location (Map picker placeholder)"
+                    placeholder="Enter location"
                     required
                   />
                 </div>
@@ -313,9 +319,10 @@ const SupplierDashboard = () => {
           </div>
           <button
             onClick={signOut}
-            className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+            className="w-full flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
           >
-            Sign Out
+            <LogOut className="w-4 h-4" />
+            <span>Sign Out</span>
           </button>
         </div>
       </div>

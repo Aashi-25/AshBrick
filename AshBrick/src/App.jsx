@@ -13,10 +13,10 @@ import CTA from "./components/CTA";
 import Footer from "./components/Footer";
 import BackgroundBlobs from "./components/BackgroundBlobs";
 import AuthPage from "./components/AuthPage";
-import { useState, useEffect } from "react";
 import ResetPassword from "./components/ResetPassword";
+import { useState, useEffect } from "react";
 
-// 🔐 Protected Route Component
+// Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, profile, loading } = useAuth();
 
@@ -42,7 +42,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   return children;
 };
 
-// 🏠 Landing Page Component
+// Landing Page Component
 const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
@@ -54,7 +54,7 @@ const LandingPage = () => {
       const redirectPath = {
         'Supplier': '/supplier-dashboard',
         'Buyer': '/buyer-dashboard', 
-        'Admin': '/admin'
+        'Admin': '/admin-dashboard'
       }[profile.role] || '/buyer-dashboard';
       
       window.location.href = redirectPath;
@@ -104,7 +104,7 @@ const LandingPage = () => {
   );
 };
 
-// 🌐 Main App Component
+// Main App Component
 function App() {
   return (
     <Routes>
@@ -130,7 +130,7 @@ function App() {
       />
       
       <Route
-        path="/admin"
+        path="/admin-dashboard"
         element={
           <ProtectedRoute allowedRoles={["Admin"]}>
             <AdminDashboard />

@@ -5,7 +5,9 @@ const AuthContext = createContext();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within an AuthProvider");
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
   return context;
 };
 
@@ -24,7 +26,6 @@ export const AuthProvider = ({ children }) => {
 
       if (error) {
         console.error("Error fetching profile:", error.message);
-        setProfile(null);
         return null;
       }
       
@@ -33,7 +34,6 @@ export const AuthProvider = ({ children }) => {
       return data;
     } catch (error) {
       console.error("❌ Error fetching profile:", error.message);
-      setProfile(null);
       return null;
     }
   };
@@ -129,7 +129,6 @@ export const AuthProvider = ({ children }) => {
 
       if (error) throw error;
 
-      // Profile will be created automatically by the trigger
       console.log("✅ User signed up:", data.user?.email);
       
       return { data, error: null };

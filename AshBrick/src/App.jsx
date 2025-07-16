@@ -35,8 +35,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     return <Navigate to="/" replace />;
   }
 
-  if (allowedRoles && profile && !allowedRoles.includes(profile.role)) {
-    return <Navigate to="/" replace />;
+  if (allowedRoles) {
+    const userRole = profile?.role || user?.user_metadata?.role || 'Buyer';
+    if (!allowedRoles.includes(userRole)) {
+      return <Navigate to="/" replace />;
+    }
   }
 
   return children;
@@ -50,13 +53,15 @@ const LandingPage = () => {
 
   // Auto-redirect authenticated users to their dashboard
   useEffect(() => {
-    if (!loading && user && profile) {
+    if (!loading && user) {
+      const userRole = profile?.role || user?.user_metadata?.role || 'Buyer';
       const redirectPath = {
         'Supplier': '/supplier-dashboard',
         'Buyer': '/buyer-dashboard', 
         'Admin': '/admin-dashboard'
-      }[profile.role] || '/buyer-dashboard';
+      }[userRole] || '/buyer-dashboard';
       
+      console.log("🔀 Redirecting user to:", redirectPath, "with role:", userRole);
       window.location.href = redirectPath;
     }
   }, [user, profile, loading]);
@@ -74,7 +79,7 @@ const LandingPage = () => {
   }
 
   // Only show landing page if user is not authenticated
-  if (user && profile) {
+  if (user) {
     return null; // Will redirect via useEffect
   }
 

@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 
@@ -18,6 +19,12 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUserProfile = async (userId) => {
     try {
+      // Check if Supabase is properly configured
+      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        console.warn("⚠️ Supabase not configured. Skipping profile fetch.");
+        return null;
+      }
+
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
@@ -25,6 +32,11 @@ export const AuthProvider = ({ children }) => {
         .single();
 
       if (error) {
+        // If profiles table doesn't exist yet, that's okay
+        if (error.code === 'PGRST116') {
+          console.warn("⚠️ Profiles table not found. User will have basic profile.");
+          return null;
+        }
         console.error("Error fetching profile:", error.message);
         return null;
       }
@@ -43,6 +55,7 @@ export const AuthProvider = ({ children }) => {
 
     const initAuth = async () => {
       try {
+        console.log("🔄 Initializing auth...");
         setLoading(true);
         
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -57,6 +70,7 @@ export const AuthProvider = ({ children }) => {
         }
 
         const currentUser = session?.user || null;
+        console.log("👤 Current user:", currentUser?.email || "None");
         
         if (mounted) {
           setUser(currentUser);
@@ -82,9 +96,10 @@ export const AuthProvider = ({ children }) => {
 
     initAuth();
 
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log("Auth state changed:", event, session?.user?.email);
+        console.log("🔄 Auth state changed:", event, session?.user?.email || "No user");
         
         if (!mounted) return;
 
@@ -117,6 +132,13 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       
+      // Check if Supabase is properly configured
+      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        throw new Error("Supabase is not configured. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your Secrets.");
+      }
+
+      console.log("📝 Signing up user:", email, "with role:", role);
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -144,6 +166,13 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       
+      // Check if Supabase is properly configured
+      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        throw new Error("Supabase is not configured. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your Secrets.");
+      }
+
+      console.log("🔐 Signing in user:", email);
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -165,6 +194,8 @@ export const AuthProvider = ({ children }) => {
   const signOut = async () => {
     try {
       setLoading(true);
+      
+      console.log("🚪 Signing out user...");
       
       const { error } = await supabase.auth.signOut();
       
@@ -193,7 +224,7 @@ export const AuthProvider = ({ children }) => {
     signIn,
     signOut,
     isAuthenticated: !!user,
-    role: profile?.role,
+    role: profile?.role || user?.user_metadata?.role || 'Buyer',
     name: profile?.name || user?.email?.split("@")[0] || "User",
   };
 

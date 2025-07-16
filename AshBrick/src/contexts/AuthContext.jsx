@@ -1,6 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useNavigate } from "react-router-dom";
+
+console.log("AuthContext loaded");
+
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -30,16 +33,28 @@ export const AuthProvider = ({ children }) => {
       setProfile(null);
     }
   };
+  
   useEffect(() => {
+    console.log("AuthContext useEffect running");
+    // Test Supabase connectivity
+    supabase
+      .from('profiles')
+      .select('*')
+      .limit(1)
+      .then(res => console.log("Test Supabase query result:", res))
+      .catch(err => console.error("Test Supabase query error:", err));
     const initAuth = async () => {
       try {
         setLoading(true);
+        console.log("Before getSession");
         const {
           data: { session },
           error,
         } = await supabase.auth.getSession();
+        console.log("After getSession");
+        console.log("Session from getSession:", session, "Error:", error);
         if (error) throw error;
-
+        
         const currentUser = session?.user || null;
         setUser(currentUser);
         if (currentUser) {

@@ -9,10 +9,17 @@ import {
   BarChart3,
   MapPin,
   Upload,
+<<<<<<< HEAD
+  DollarSign,
+  Truck,
+  Calendar,
+  LogOut
+=======
   FileText,
   DollarSign,
   Truck,
   Calendar
+>>>>>>> upstream/main
 } from 'lucide-react'
 
 const SupplierDashboard = () => {
@@ -62,7 +69,17 @@ const SupplierDashboard = () => {
   const handleSubmitListing = (e) => {
     e.preventDefault()
     console.log('New listing:', ashListing)
+<<<<<<< HEAD
+    alert('Listing created successfully!')
+    setAshListing({
+      volume: '',
+      location: '',
+      price: '',
+      description: ''
+    })
+=======
     // Handle listing submission
+>>>>>>> upstream/main
   }
 
   const renderContent = () => {
@@ -156,7 +173,11 @@ const SupplierDashboard = () => {
                     value={ashListing.location}
                     onChange={handleInputChange}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-400 focus:border-transparent outline-none"
+<<<<<<< HEAD
+                    placeholder="Enter location"
+=======
                     placeholder="Enter location (Map picker placeholder)"
+>>>>>>> upstream/main
                     required
                   />
                 </div>
@@ -313,9 +334,16 @@ const SupplierDashboard = () => {
           </div>
           <button
             onClick={signOut}
+<<<<<<< HEAD
+            className="w-full flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Sign Out</span>
+=======
             className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
           >
             Sign Out
+>>>>>>> upstream/main
           </button>
         </div>
       </div>

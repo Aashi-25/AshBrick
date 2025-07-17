@@ -22,7 +22,15 @@ const Metrics = () => {
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-4 gap-8">
           {metrics.map((metric, index) => (
+<<<<<<< HEAD
+            <div key={index} className={`text-center p-6 rounded-2xl backdrop-blur-sm transition-all duration-500 ${
+              currentMetric === index
+                ? 'bg-gradient-to-br from-green-400/20 to-blue-500/20 border-2 border-green-400 scale-105'
+                : 'bg-white/5 border border-white/10'
+            }`}>
+=======
             <div key={index} className={`text-center p-6 glass-dark transition-all duration-500 ${currentMetric === index ? 'ring-2 ring-cyan-400 scale-105' : ''}` }>
+>>>>>>> upstream/main
               <div className="text-4xl font-bold bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent mb-2">
                 {metric.value}<span className="text-2xl">{metric.unit}</span>
               </div>

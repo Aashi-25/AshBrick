@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+
+node_modules/
+.env
+=======
+=======
+>>>>>>> upstream/main
 # Logs
 logs
 *.log
@@ -22,3 +29,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+<<<<<<< HEAD
+
+
+# .gitignore
+.env.local
+
+=======
+>>>>>>> upstream/main

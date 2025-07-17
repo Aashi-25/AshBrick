@@ -13,14 +13,22 @@ import {
   Download,
   Eye,
   Edit,
+<<<<<<< HEAD
+  Trash2,
+  LogOut
+=======
   Trash2
+>>>>>>> upstream/main
 } from 'lucide-react'
 
 const AdminDashboard = () => {
   const { user, profile, signOut } = useAuth()
   const [activeTab, setActiveTab] = useState('overview')
+<<<<<<< HEAD
+=======
 
   // Added filter state
+>>>>>>> upstream/main
   const [roleFilter, setRoleFilter] = useState('All Roles')
   const [statusFilter, setStatusFilter] = useState('All Status')
 
@@ -83,7 +91,10 @@ const AdminDashboard = () => {
     alert('ESG Report generation started. You will receive an email when ready.')
   }
 
+<<<<<<< HEAD
+=======
   // Filter users based on filters
+>>>>>>> upstream/main
   const filteredUsers = mockUsers.filter(u => {
     const roleMatch = roleFilter === 'All Roles' || u.role === roleFilter
     const statusMatch = statusFilter === 'All Status' || u.status === statusFilter
@@ -95,7 +106,10 @@ const AdminDashboard = () => {
       case 'overview':
         return (
           <div className="space-y-6">
+<<<<<<< HEAD
+=======
             {/* Stats Cards */}
+>>>>>>> upstream/main
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <div className="flex items-center space-x-3">
@@ -145,7 +159,10 @@ const AdminDashboard = () => {
               </div>
             </div>
 
+<<<<<<< HEAD
+=======
             {/* Charts Placeholder */}
+>>>>>>> upstream/main
             <div className="grid md:grid-cols-2 gap-6">
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Monthly Growth</h3>
@@ -434,7 +451,22 @@ const AdminDashboard = () => {
   return (
     <div className="flex min-h-screen">
       <aside className="w-64 bg-white border-r border-gray-200 p-6 flex flex-col">
+<<<<<<< HEAD
+        <div className="flex items-center space-x-3 mb-8">
+          <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-xl flex items-center justify-center">
+            <Factory className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
+              AshBrick
+            </h1>
+            <p className="text-sm text-gray-600">Admin Portal</p>
+          </div>
+        </div>
+        
+=======
         <h1 className="text-2xl font-bold mb-8 text-gray-900">Admin Dashboard</h1>
+>>>>>>> upstream/main
         <nav className="flex flex-col space-y-4">
           {sidebarItems.map(({ id, label, icon: Icon }) => (
             <button
@@ -450,6 +482,30 @@ const AdminDashboard = () => {
               <span>{label}</span>
             </button>
           ))}
+<<<<<<< HEAD
+        </nav>
+        
+        <div className="mt-auto pt-6 border-t border-gray-200">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+              <Shield className="w-5 h-5 text-gray-600" />
+            </div>
+            <div>
+              <p className="font-medium text-gray-900">{user?.email}</p>
+              <p className="text-sm text-gray-600">{profile?.role}</p>
+            </div>
+          </div>
+          <button
+            onClick={signOut}
+            className="w-full flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </aside>
+      
+=======
           <button
             onClick={signOut}
             className="mt-auto px-4 py-2 rounded-lg text-red-600 hover:bg-red-100 font-semibold"
@@ -458,9 +514,14 @@ const AdminDashboard = () => {
           </button>
         </nav>
       </aside>
+>>>>>>> upstream/main
       <main className="flex-1 p-8 bg-gray-50">{renderContent()}</main>
     </div>
   )
 }
 
+<<<<<<< HEAD
 export default AdminDashboard
+=======
+export default AdminDashboard
+>>>>>>> upstream/main

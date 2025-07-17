@@ -1,6 +1,57 @@
 import { ArrowRight } from 'lucide-react';
+<<<<<<< HEAD
 
 const Impact = () => (
+=======
+import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
+
+const Impact = () => {
+  const leftRef = useRef(null);
+  const rightRef = useRef(null);
+
+  useEffect(() => {
+    if (leftRef.current) {
+      gsap.fromTo(
+        leftRef.current,
+        { x: -100, opacity: 0 },
+        {
+          x: 0,
+          opacity: 1,
+          duration: 1,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: leftRef.current,
+            start: 'top 80%',
+            toggleActions: 'play reverse play reverse',
+          },
+        }
+      );
+    }
+    if (rightRef.current) {
+      gsap.fromTo(
+        rightRef.current,
+        { x: 100, opacity: 0 },
+        {
+          x: 0,
+          opacity: 1,
+          duration: 2,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: rightRef.current,
+            start: 'top 80%',
+            toggleActions: 'play reverse play reverse',
+          },
+        }
+      );
+    }
+  }, []);
+
+  return (
+>>>>>>> upstream/main
   <section id="impact" className="relative z-10 px-6 py-20">
     <div className="max-w-7xl mx-auto">
       <div className="text-center mb-16">
@@ -13,7 +64,11 @@ const Impact = () => (
       </div>
       <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
         <div className="grid md:grid-cols-3 gap-8 text-center">
+<<<<<<< HEAD
           <div className="space-y-4">
+=======
+            <div className="space-y-4 left-panel" ref={leftRef}>
+>>>>>>> upstream/main
             <div className="text-red-400 text-lg font-semibold">Traditional Brick</div>
             <div className="space-y-2">
               <div className="text-2xl font-bold">0.18 kg CO₂</div>
@@ -31,7 +86,11 @@ const Impact = () => (
           <div className="flex items-center justify-center">
             <ArrowRight className="w-12 h-12 text-green-400 animate-pulse" />
           </div>
+<<<<<<< HEAD
           <div className="space-y-4">
+=======
+            <div className="space-y-4 right-panel" ref={rightRef}>
+>>>>>>> upstream/main
             <div className="text-green-400 text-lg font-semibold">Fly Ash Brick</div>
             <div className="space-y-2">
               <div className="text-2xl font-bold">0.03 kg CO₂</div>
@@ -51,5 +110,9 @@ const Impact = () => (
     </div>
   </section>
 );
+<<<<<<< HEAD
+=======
+};
+>>>>>>> upstream/main
 
 export default Impact;

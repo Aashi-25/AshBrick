@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/main
 import {
   Factory,
   Mail,
@@ -66,12 +70,15 @@ const AuthPage = ({ onClose, onSuccess }) => {
       return false;
     }
 
+<<<<<<< HEAD
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setMessage({ type: "error", text: "Please enter a valid email address" });
       return false;
     }
 
+=======
+>>>>>>> upstream/main
     if (!isLogin) {
       if (formData.password !== formData.confirmPassword) {
         setMessage({ type: "error", text: "Passwords do not match" });
@@ -100,6 +107,7 @@ const AuthPage = ({ onClose, onSuccess }) => {
       if (isLogin) {
         const { data, error } = await signIn(formData.email, formData.password);
         if (error) throw error;
+<<<<<<< HEAD
         
         setMessage({ type: "success", text: "Login successful! Redirecting..." });
         
@@ -108,6 +116,12 @@ const AuthPage = ({ onClose, onSuccess }) => {
           onClose();
         }, 1000);
         
+=======
+        setMessage({ type: "success", text: "Login successful!" });
+        setTimeout(() => {
+          onSuccess && onSuccess(data.user, formData.role); // ✅ Now passing role
+        }, 1000);
+>>>>>>> upstream/main
       } else {
         const { data, error } = await signUp(
           formData.email,
@@ -115,6 +129,7 @@ const AuthPage = ({ onClose, onSuccess }) => {
           formData.role
         );
         if (error) throw error;
+<<<<<<< HEAD
         
         setMessage({
           type: "success",
@@ -134,6 +149,14 @@ const AuthPage = ({ onClose, onSuccess }) => {
       }
     } catch (error) {
       console.error("Auth error:", error);
+=======
+        setMessage({
+          type: "success",
+          text: "Account created! Please check your email to verify your account.",
+        });
+      }
+    } catch (error) {
+>>>>>>> upstream/main
       setMessage({
         type: "error",
         text: error.message || "An error occurred. Please try again.",
@@ -266,6 +289,10 @@ const AuthPage = ({ onClose, onSuccess }) => {
               </div>
             )}
 
+<<<<<<< HEAD
+=======
+            {/* Email */}
+>>>>>>> upstream/main
             <div className="space-y-2">
               <label className="block text-sm font-medium text-white">
                 Email Address
@@ -283,7 +310,11 @@ const AuthPage = ({ onClose, onSuccess }) => {
                 />
               </div>
             </div>
+<<<<<<< HEAD
 
+=======
+            {/* Password */}
+>>>>>>> upstream/main
             <div className="space-y-2">
               <label className="block text-sm font-medium text-white">
                 Password
@@ -312,6 +343,10 @@ const AuthPage = ({ onClose, onSuccess }) => {
               </div>
             </div>
 
+<<<<<<< HEAD
+=======
+            {/* Confirm Password */}
+>>>>>>> upstream/main
             {!isLogin && (
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-white">
@@ -342,19 +377,30 @@ const AuthPage = ({ onClose, onSuccess }) => {
               </div>
             )}
 
+<<<<<<< HEAD
+=======
+            {/* Forgot Password */}
+>>>>>>> upstream/main
             {isLogin && (
               <div className="text-right">
                 <button
                   type="button"
                   onClick={handleForgotPassword}
                   className="text-sm text-green-400 hover:text-green-500 font-medium"
+<<<<<<< HEAD
                   disabled={loading}
+=======
+>>>>>>> upstream/main
                 >
                   Forgot password?
                 </button>
               </div>
             )}
 
+<<<<<<< HEAD
+=======
+            {/* Submit */}
+>>>>>>> upstream/main
             <button
               type="submit"
               disabled={loading}
@@ -371,6 +417,10 @@ const AuthPage = ({ onClose, onSuccess }) => {
             </button>
           </form>
 
+<<<<<<< HEAD
+=======
+          {/* Toggle Login/Signup */}
+>>>>>>> upstream/main
           <div className="mt-6 text-center">
             <p className="text-white/70 text-sm">
               {isLogin ? "Don't have an account?" : "Already have an account?"}
@@ -386,13 +436,20 @@ const AuthPage = ({ onClose, onSuccess }) => {
                   });
                 }}
                 className="ml-1 text-green-400 hover:text-green-500 font-medium"
+<<<<<<< HEAD
                 disabled={loading}
+=======
+>>>>>>> upstream/main
               >
                 {isLogin ? "Sign up" : "Sign in"}
               </button>
             </p>
           </div>
 
+<<<<<<< HEAD
+=======
+          {/* Terms */}
+>>>>>>> upstream/main
           {!isLogin && (
             <div className="mt-4 text-center">
               <p className="text-xs text-white/40">
@@ -413,4 +470,8 @@ const AuthPage = ({ onClose, onSuccess }) => {
   );
 };
 
+<<<<<<< HEAD
 export default AuthPage;
+=======
+export default AuthPage;
+>>>>>>> upstream/main

@@ -115,11 +115,8 @@
 }
 
 .glass-dark {
-  background: rgba(20, 20, 30, 0.55);
-  color: #f3f4f6;
-  border-radius: 1rem;
-  border: 1px solid rgba(55, 65, 81, 0.5); /* gray-700/50 */
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 4px 32px 0 rgba(0,0,0,0.25);
+  background: rgba(20, 30, 25, 0.28); /* more transparent */
+  /* backdrop-filter: blur(22px) saturate(1.2); */
+  border: 1.5px solid rgba(255,255,255,0.06);
+  box-shadow: 0 8px 32px 0 rgba(34,197,94,0.08), 0 1.5px 16px 0 rgba(0,0,0,0.12);
 }

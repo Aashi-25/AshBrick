@@ -6,40 +6,74 @@ const Hero = () => (
     className="relative flex items-center justify-center min-h-screen"
     style={{
       height: "90vh",
-      // Removed overflow: hidden
     }}
   >
-    {/* Background Video */}
-    <video
-      className="absolute top-0 left-0 w-full h-full object-cover"
-      src={heroVideo}
-      autoPlay
-      loop
-      muted
-      playsInline
-      style={{
-        width: "100%",
-        height: "100%",
-        objectFit: "cover",
-        zIndex: 1,
-        position: "absolute",
-        top: 0,
-        left: 0,
-      }}
-    />
-    {/* Overlay for better text visibility */}
+    {/* Themed Video Container */}
     <div
+      className="absolute top-0 left-0 w-full h-full flex items-center justify-center"
       style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        background: "rgba(0,0,0,0.3)",
-        zIndex: 2,
+        zIndex: 1,
+        pointerEvents: 'none',
       }}
-    />
-    {/* Hero Content */}
+    >
+      {/* Video with card effect */}
+      <div
+        style={{
+          width: '100vw',
+          height: '100%',
+          maxWidth: '1400px',
+          margin: '0 auto',
+          borderRadius: '2.5rem',
+          overflow: 'hidden',
+          boxShadow: '0 8px 48px 0 rgba(34,197,94,0.18), 0 1.5px 16px 0 rgba(0,0,0,0.25)',
+          position: 'relative',
+        }}
+      >
+        <video
+          className="w-full h-full object-cover"
+          src={heroVideo}
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            filter: 'brightness(0.65) blur(1.5px) saturate(1.1)',
+            transition: 'filter 0.5s',
+          }}
+        />
+        {/* Greenish gradient overlay */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'linear-gradient(120deg, rgba(34,197,94,0.18) 0%, rgba(34,197,94,0.08) 60%, rgba(0,0,0,0.32) 100%)',
+            pointerEvents: 'none',
+            zIndex: 2,
+            mixBlendMode: 'multiply',
+          }}
+        />
+        {/* Soft vignette for blending */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.18) 60%, rgba(0,0,0,0.38) 100%)',
+            pointerEvents: 'none',
+            zIndex: 3,
+          }}
+        />
+      </div>
+    </div>
+    {/* Hero Content Overlay */}
     <div className="relative z-10 text-center w-full max-w-3xl mx-auto px-8 py-10">
       <h1
         className="text-5xl md:text-7xl font-extrabold mb-6"

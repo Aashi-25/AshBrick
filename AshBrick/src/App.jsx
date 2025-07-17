@@ -12,12 +12,11 @@ import AIFeatures from "./components/AIFeatures";
 import Impact from "./components/Impact";
 import CTA from "./components/CTA";
 import Footer from "./components/Footer";
-import BackgroundBlobs from "./components/BackgroundBlobs";
 import AuthPage from "./components/AuthPage";
 import { useState } from "react";
 import ResetPassword from "./components/ResetPassword";
 import TeamCarousel from "./components/TeamCarousel";
-import ConnectSteps from "./components/ConnectSteps";
+import AnimatedBackdrop from "./components/AnimatedBackdrop";
 
 
 // 🔐 Protected Route
@@ -62,23 +61,37 @@ const LandingPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-site-image text-white overflow-hidden">
-      <BackgroundBlobs />
+    <div className="min-h-screen text-white overflow-auto relative">
+      <AnimatedBackdrop />
       <Navbar
         isMenuOpen={isMenuOpen}
         setIsMenuOpen={setIsMenuOpen}
         onAuthClick={() => setShowAuth(true)}
       />
-      <Hero onAuthClick={() => setShowAuth(true)} />
-      <Metrics />
-      <Features />
-      <AIFeatures />
-      <Impact />
-      <CTA onAuthClick={() => setShowAuth(true)} />
-      <ConnectSteps />
-      <TeamCarousel />
+      <main className="relative z-10 flex flex-col gap-16 md:gap-24">
+        <section className="w-full flex justify-center items-center pt-8 md:pt-16 pb-8 md:pb-16">
+          <Hero onAuthClick={() => setShowAuth(true)} />
+        </section>
+        <section className="w-full max-w-7xl mx-auto px-4 md:px-8">
+          <Features />
+        </section>
+        <section className="w-full max-w-7xl mx-auto px-4 md:px-8">
+          <AIFeatures />
+        </section>
+        <section className="w-full max-w-7xl mx-auto px-4 md:px-8">
+          <Impact />
+        </section>
+        <section className="w-full max-w-7xl mx-auto px-4 md:px-8">
+          <Metrics />
+        </section>
+        <section className="w-full max-w-4xl mx-auto px-4 md:px-8">
+          <CTA onAuthClick={() => setShowAuth(true)} />
+        </section>
+        <section className="w-full max-w-5xl mx-auto px-4 md:px-8">
+          <TeamCarousel />
+        </section>
+      </main>
       <Footer />
-
       {showAuth && (
         <AuthPage
           onClose={() => setShowAuth(false)}

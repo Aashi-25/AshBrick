@@ -212,32 +212,58 @@ AshBrick features secure, role-based authentication powered by **Supabase Auth**
 ---
 
 ## 🌐 **Folder Structure**
-
 ```bash
-ashbrick/
-├─ src/
-│  ├─ components/       # UI Components
-│  │   ├── Hero.jsx           # 🎯 Landing page hero section
-│  │   ├── Features.jsx       # ⚡ Core features showcase
-│  │   ├── AIFeatures.jsx     # 🤖 AI capabilities demo
-│  │   ├── Impact.jsx         # 🌍 Environmental impact metrics
-│  │   ├── Metrics.jsx        # 📊 Key performance indicators
-│  │   ├── CTA.jsx           # 📞 Call-to-action sections
-│  │   ├── Navbar.jsx        # 🧭 Navigation component
-│  │   ├── Footer.jsx        # 🦶 Footer component
-│  │   └── BackgroundBlobs.jsx # ✨ Animated background
-│  ├─ pages/            # Page-level views
-│  ├─ context/          # Auth & Role Context
-│  ├─ lib/              # Supabase Client & Helpers
-│  ├─ assets/           # 🎨 Static assets
-│  ├─ App.jsx          # 🚀 Main application component
-│  ├─ main.jsx         # ⚡ Application entry point
-│  └─ styles/           # Tailwind Config
-├─ public/
-├─ .env.local           # Environment Variables
-└─ README.md
-```
+AshBrick/
+├─ ashbrick/                         # 🌐 Frontend (React + Supabase)
+│  ├─ node_modules/
+│  ├─ public/                        # Static public assets
+│  ├─ src/
+│  │  ├─ components/                 # 💡 Reusable UI Components
+│  │  │   ├── Hero.jsx              # 🎯 Landing page hero section
+│  │  │   ├── Features.jsx          # ⚡ Core features showcase
+│  │  │   ├── AIFeatures.jsx        # 🤖 AI capabilities demo (Voice/AI assistant)
+│  │  │   ├── Impact.jsx            # 🌍 Environmental impact metrics
+│  │  │   ├── Metrics.jsx           # 📊 Key performance indicators
+│  │  │   ├── CTA.jsx               # 📞 Call-to-action sections
+│  │  │   ├── Navbar.jsx            # 🧭 Navigation component
+│  │  │   ├── Footer.jsx            # 🦶 Footer component
+│  │  │   └── BackgroundBlobs.jsx   # ✨ Animated background
+│  │  ├─ pages/                     # 📄 Route-level pages
+│  │  ├─ context/                   # 🔐 Auth & Role Contexts
+│  │  │   ├── AuthContext.jsx       # Supabase auth context
+│  │  │   └── RoleContext.jsx       # Buyer/Supplier/Admin role handler
+│  │  ├─ lib/                       # ⚙️ Supabase client and utilities
+│  │  │   └── supabase.js
+│  │  ├─ assets/                    # 🎨 Static images, icons, etc.
+│  │  ├─ styles/                    # 🎨 Tailwind & global styles
+│  │  ├─ App.jsx                    # 🚀 Main App component
+│  │  └─ main.jsx                   # ⚡ Entry point
+│  ├─ .env.local                    # 🔐 Supabase API Keys, etc.
+│  ├─ .gitignore
+│  ├─ eslint.config.js
+│  ├─ postcss.config.js
+│  ├─ tailwind.config.js
+│  ├─ package.json
+│  ├─ package-lock.json
+│  └─ README.md
 
+├─ server/                           # ⚙️ Backend (Node.js + Express + PostgreSQL)
+│  ├─ node_modules/
+│  ├─ controllers/                  # 🧠 Business logic (e.g., auth, tokens)
+│  │   └── authController.js
+│  ├─ routes/                       # 🛣️ Express routes
+│  │   └── authRoutes.js
+│  ├─ middleware/                   # 🧱 Auth middlewares (JWT, role checks)
+│  │   └── verifyToken.js
+│  ├─ db/                           # 🗄️ DB config & SQL queries
+│  │   ├── config.js                # PostgreSQL connection setup
+│  │   └── queries.js               # Parameterized SQL queries
+│  ├─ .env                          # 🔐 Backend env vars (DB URL, JWT secret)
+│  ├─ .gitignore
+│  ├─ server.js                     # 🚀 Entry point for Express server
+│  ├─ package.json
+│  └─ package-lock.json
+```
 ---
 
 ## 📊 **Database Schema (Supabase)**

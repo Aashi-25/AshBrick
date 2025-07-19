@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
+
 import {
   Factory,
   Mail,
-  Lock,
   Eye,
   EyeOff,
   ArrowRight,
@@ -14,7 +15,10 @@ import {
   Building,
   Shield,
   Sparkles,
+  ArrowLeft,
+  X,
 } from "lucide-react";
+import { CardBody, CardContainer, CardItem } from "./3d-card";
 
 const AuthPage = ({ onClose, onSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -31,6 +35,7 @@ const AuthPage = ({ onClose, onSuccess }) => {
   });
 
   const { signUp, signIn } = useAuth();
+  const navigate = useNavigate();
 
   const roles = [
     {
@@ -177,266 +182,302 @@ const AuthPage = ({ onClose, onSuccess }) => {
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-black/90 text-white rounded-xl shadow-lg shadow-green-400/10 w-full max-w-md relative overflow-hidden max-h-[90vh] overflow-y-auto">
-        {/* Background Effects */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-          {[...Array(5)].map((_, i) => (
-            <div
-              key={i}
-              className={`absolute w-2 h-2 bg-green-400/50 rounded-full animate-float-${i % 2 + 1} shadow-sm shadow-green-400/20`}
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 2}s`,
-                animationDuration: `${4 + Math.random() * 2}s`,
-              }}
-            />
-          ))}
-        </div>
+      {/* Background Effects */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+        {[...Array(5)].map((_, i) => (
+          <div
+            key={i}
+            className={`absolute w-2 h-2 bg-green-400/50 rounded-full animate-float-${i % 2 + 1} shadow-sm shadow-green-400/20`}
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 2}s`,
+              animationDuration: `${4 + Math.random() * 2}s`,
+            }}
+          />
+        ))}
+      </div>
 
-        {/* Close Button */}
-        <button
-          onClick={handleClose}
-          className="absolute top-4 right-4 w-8 h-8 bg-green-400/20 hover:bg-green-400/30 rounded-full flex items-center justify-center transition-all duration-300 group z-10"
-        >
-          <span className="text-green-300 text-lg group-hover:scale-110 transition-transform duration-300">×</span>
-        </button>
+      <CardContainer className="inter-var w-full max-w-md relative">
 
-        {/* Header */}
-        <div className="bg-black/95 border-b border-green-400/20 p-6 text-white relative">
-          <div className="flex items-center justify-center space-x-3 mb-4 group">
-            <div className="relative">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg flex items-center justify-center transform group-hover:scale-105 transition-all duration-300 shadow-sm shadow-green-400/20">
-                <Factory className="w-6 h-6 text-black" />
-              </div>
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-              AshBrick
-            </span>
-          </div>
-          <h2 className="text-xl font-semibold text-center text-green-400">
-            {isLogin ? "Welcome Back" : "Join AshBrick"}
-          </h2>
-          <p className="text-green-300/70 text-center text-sm mt-1">
-            {isLogin
-              ? "Sign in to your account"
-              : "Create your account to get started"}
-          </p>
-        </div>
-
-        {/* Form Content */}
-        <div className="p-6">
-          {message.text && (
-            <div
-              className={`mb-4 p-3 rounded-lg flex items-center space-x-2 ${
-                message.type === "error"
-                  ? "bg-red-900/20 text-red-400 border border-red-400/20"
-                  : "bg-green-900/20 text-green-400 border border-green-400/20"
-              }`}
-            >
-              {message.type === "error" ? (
-                <AlertCircle className="w-5 h-5" />
-              ) : (
-                <CheckCircle className="w-5 h-5" />
-              )}
-              <span className="text-sm">{message.text}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <CardBody className="bg-black/90 text-white rounded-xl shadow-lg shadow-green-400/10 w-full h-auto p-6 relative overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar group/card">
+          {/* Header with sticky positioning */}
+          <div className="sticky top-0 z-30 bg-black/95 border-b border-green-400/20 -mx-6 px-6 pt-6 pb-4 backdrop-blur-sm">
+            {/* Back to Login Button (Top-Left, Signup Only) */}
             {!isLogin && (
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-green-300/70">
-                  I am a
-                </label>
-                <div className="grid grid-cols-1 gap-3">
-                  {roles.map((role) => {
-                    const Icon = role.icon;
-                    return (
-                      <button
-                        key={role.value}
-                        type="button"
-                        onClick={() =>
-                          setFormData({ ...formData, role: role.value })
-                        }
-                        className={`p-4 rounded-lg border transition-all text-left group relative ${
-                          formData.role === role.value
-                            ? getColorClasses(role.color)
-                            : "border-green-400/20 bg-black/50 text-green-300/70 hover:border-green-400/30 hover:bg-green-400/10"
-                        }`}
-                      >
-                        <div className="flex items-center space-x-3">
-                          <Icon className="w-5 h-5 group-hover:scale-105 transition-transform duration-300" />
-                          <div>
-                            <div className="font-medium">{role.label}</div>
-                            <div className="text-sm text-green-300/50">
-                              {role.description}
-                            </div>
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              <CardItem translateZ={50}>
+                <button
+                  onClick={() => {
+                    setIsLogin(true);
+                    setMessage({ type: "", text: "" });
+                    setFormData({
+                      email: "",
+                      password: "",
+                      confirmPassword: "",
+                      role: "Buyer",
+                    });
+                    setShowPassword(false);
+                    setShowConfirmPassword(false);
+                    navigate("#login");
+                  }}
+                  className="absolute top-6 left-6 flex items-center space-x-2 text-green-400 hover:text-green-300 transition-all duration-300 group"
+                >
+                  <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300" />
+                  <span className="text-sm font-medium">Login</span>
+                </button>
+              </CardItem>
             )}
 
-            {/* Email */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-green-300/70">
-                Email Address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-400/50" />
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full pl-10 pr-4 py-3 bg-black/50 border border-green-400/20 text-white placeholder-green-300/50 rounded-lg focus:ring-2 focus:ring-green-400 hover:bg-green-400/10 transition-all duration-300 outline-none"
-                  placeholder="Enter your email"
-                  required
-                />
-              </div>
-            </div>
+            {/* Close Button (Top-Right) */}
+            <CardItem translateZ={50}>
+              <button
+                onClick={handleClose}
+                className="absolute top-6 right-6 w-10 h-10 bg-gradient-to-br from-gray-800/95 to-gray-900/95 hover:from-red-500/95 hover:to-red-600/95 rounded-full flex items-center justify-center transition-all duration-300 group shadow-lg shadow-green-400/20 hover:shadow-red-400/40 backdrop-blur-md border border-green-400/30 hover:border-red-400/50 hover:scale-110"
+              >
+                <X className="w-5 h-5 text-green-300 group-hover:text-white transition-all duration-300 group-hover:rotate-90" />
+                {/* Glowing effect on hover */}
+                <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-20 bg-gradient-to-br from-red-400 to-red-600 transition-opacity duration-300" />
+                {/* Tooltip */}
+                <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-black/90 text-white text-xs px-3 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap pointer-events-none border border-green-400/20">
+                  Close
+                  <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1 w-2 h-2 bg-black/90 rotate-45 border-l border-t border-green-400/20"></div>
+                </div>
+              </button>
+            </CardItem>
 
-            {/* Password */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-green-300/70">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className="w-full pl-4 pr-12 py-3 bg-black/50 border border-green-400/20 text-white placeholder-green-300/50 rounded-lg focus:ring-2 focus:ring-green-400 hover:bg-green-400/10 transition-all duration-300 outline-none"
-                  placeholder="Enter your password"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-green-400/50 hover:text-green-400"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Confirm Password */}
-            {!isLogin && (
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-green-300/70">
-                  Confirm Password
-                </label>
+            {/* Header Content */}
+            <div className="flex flex-col items-center pt-2">
+              <div className="flex items-center justify-center space-x-3 mb-4 group">
                 <div className="relative">
+                  <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg flex items-center justify-center transform group-hover:scale-105 transition-all duration-300 shadow-sm shadow-green-400/20">
+                    <Factory className="w-6 h-6 text-black" />
+                  </div>
+                </div>
+                <span className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                  AshBrick
+                </span>
+              </div>
+              <h2 className="text-xl font-semibold text-center text-green-400">
+                {isLogin ? "Welcome Back" : "Join AshBrick"}
+              </h2>
+              <p className="text-green-300/70 text-center text-sm mt-1">
+                {isLogin ? "Sign in to your account" : "Create your account to get started"}
+              </p>
+            </div>
+          </div>
+
+          {/* Form Content - Centered */}
+          <div className="flex flex-col items-center px-6 py-4">
+            {message.text && (
+              <CardItem
+                translateZ={60}
+                className={`mb-4 p-3 rounded-lg flex items-center space-x-2 w-full max-w-sm ${
+                  message.type === "error"
+                    ? "bg-red-900/20 text-red-400 border border-red-400/20"
+                    : "bg-green-900/20 text-green-400 border border-green-400/20"
+                }`}
+              >
+                {message.type === "error" ? (
+                  <AlertCircle className="w-5 h-5" />
+                ) : (
+                  <CheckCircle className="w-5 h-5" />
+                )}
+                <span className="text-sm">{message.text}</span>
+              </CardItem>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-sm flex flex-col items-center">
+              {!isLogin && (
+                <CardItem translateZ={50} className="space-y-3 w-full">
+                  <label className="block text-sm font-medium text-green-300/70 text-center">
+                    I am a
+                  </label>
+                  <div className="grid grid-cols-1 gap-3 w-full">
+                    {roles.map((role) => {
+                      const Icon = role.icon;
+                      return (
+                        <button
+                          key={role.value}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, role: role.value })}
+                          className={`p-4 rounded-lg border transition-all text-left group relative w-full ${
+                            formData.role === role.value
+                              ? getColorClasses(role.color)
+                              : "border-green-400/20 bg-black/50 text-green-300/70 hover:border-green-400/30 hover:bg-green-400/10"
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <Icon className="w-5 h-5 group-hover:scale-105 transition-transform duration-300" />
+                            <div>
+                              <div className="font-medium">{role.label}</div>
+                              <div className="text-sm text-green-300/50">
+                                {role.description}
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </CardItem>
+              )}
+
+              {/* Email */}
+              <CardItem translateZ={50} className="space-y-2 w-full">
+                <label className="block text-sm font-medium text-green-300/70 text-center">
+                  Email Address
+                </label>
+                <div className="relative w-full">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-400/50" />
                   <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 pr-4 py-3 bg-black/50 border border-green-400/20 text-white placeholder-green-300/50 rounded-lg focus:ring-2 focus:ring-green-400 hover:bg-green-400/10 transition-all duration-300 outline-none"
+                    placeholder="Enter your email"
+                    required
+                  />
+                </div>
+              </CardItem>
+
+              {/* Password */}
+              <CardItem translateZ={50} className="space-y-2 w-full">
+                <label className="block text-sm font-medium text-green-300/70 text-center">
+                  Password
+                </label>
+                <div className="relative w-full">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
                     onChange={handleInputChange}
                     className="w-full pl-4 pr-12 py-3 bg-black/50 border border-green-400/20 text-white placeholder-green-300/50 rounded-lg focus:ring-2 focus:ring-green-400 hover:bg-green-400/10 transition-all duration-300 outline-none"
-                    placeholder="Confirm your password"
+                    placeholder="Enter your password"
                     required
                   />
                   <button
                     type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-green-400/50 hover:text-green-400"
                   >
-                    {showConfirmPassword ? (
-                      <EyeOff className="w-5 h-5" />
-                    ) : (
-                      <Eye className="w-5 h-5" />
-                    )}
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-              </div>
-            )}
+              </CardItem>
 
-            {/* Forgot Password */}
-            {isLogin && (
-              <div className="text-right">
+              {/* Confirm Password */}
+              {!isLogin && (
+                <CardItem translateZ={50} className="space-y-2 w-full">
+                  <label className="block text-sm font-medium text-green-300/70 text-center">
+                    Confirm Password
+                  </label>
+                  <div className="relative w-full">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      className="w-full pl-4 pr-12 py-3 bg-black/50 border border-green-400/20 text-white placeholder-green-300/50 rounded-lg focus:ring-2 focus:ring-green-400 hover:bg-green-400/10 transition-all duration-300 outline-none"
+                      placeholder="Confirm your password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-green-400/50 hover:text-green-400"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+                </CardItem>
+              )}
+
+              {/* Forgot Password */}
+              {isLogin && (
+                <CardItem translateZ={20} className="text-right w-full">
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="text-sm text-green-400 hover:text-green-300 font-medium"
+                  >
+                    Forgot password?
+                  </button>
+                </CardItem>
+              )}
+
+              {/* Submit */}
+              <CardItem translateZ={80} className="w-full">
                 <button
-                  type="button"
-                  onClick={handleForgotPassword}
-                  className="text-sm text-green-400 hover:text-green-300 font-medium"
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-green-400 to-emerald-500 text-black py-3 rounded-lg font-semibold transition-all duration-300 group relative overflow-hidden shadow-md shadow-green-400/20 hover:shadow-green-400/30 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
-                  Forgot password?
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-300 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <Sparkles className="w-4 h-4 text-black animate-sparkle-auth" />
+                  </div>
+                  <span className="relative z-10 flex items-center justify-center space-x-2">
+                    {loading ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <>
+                        <span>{isLogin ? "Sign In" : "Create Account"}</span>
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                      </>
+                    )}
+                  </span>
                 </button>
-              </div>
-            )}
+              </CardItem>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-green-400 to-emerald-500 text-black py-3 rounded-lg font-semibold transition-all duration-300 group relative overflow-hidden shadow-md shadow-green-400/20 hover:shadow-green-400/30 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-green-300 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                <Sparkles className="w-4 h-4 text-black animate-sparkle-auth" />
-              </div>
-              <span className="relative z-10 flex items-center justify-center space-x-2">
-                {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <>
-                    <span>{isLogin ? "Sign In" : "Create Account"}</span>
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                  </>
-                )}
-              </span>
-            </button>
-          </form>
+              {/* Toggle Login/Signup */}
+              <CardItem translateZ={20} className="mt-6 text-center w-full">
+                <p className="text-green-300/70 text-sm">
+                  {isLogin ? "Don't have an account?" : "Already have an account?"}
+                  <button
+                    onClick={() => {
+                      setIsLogin(!isLogin);
+                      setMessage({ type: "", text: "" });
+                      setFormData({
+                        email: "",
+                        password: "",
+                        confirmPassword: "",
+                        role: "Buyer",
+                      });
+                      setShowPassword(false);
+                      setShowConfirmPassword(false);
+                      navigate(isLogin ? "#signup" : "#login");
+                    }}
+                    className="ml-1 text-green-400 hover:text-green-300 font-medium"
+                  >
+                    {isLogin ? "Sign up" : "Sign in"}
+                  </button>
+                </p>
+              </CardItem>
 
-          {/* Toggle Login/Signup */}
-          <div className="mt-6 text-center">
-            <p className="text-green-300/70 text-sm">
-              {isLogin ? "Don't have an account?" : "Already have an account?"}
-              <button
-                onClick={() => {
-                  setIsLogin(!isLogin);
-                  setMessage({ type: "", text: "" });
-                  setFormData({
-                    email: "",
-                    password: "",
-                    confirmPassword: "",
-                    role: "Buyer",
-                  });
-                  setShowPassword(false);
-                  setShowConfirmPassword(false);
-                }}
-                className="ml-1 text-green-400 hover:text-green-300 font-medium"
-              >
-                {isLogin ? "Sign up" : "Sign in"}
-              </button>
-            </p>
+              {/* Terms */}
+              {!isLogin && (
+                <CardItem translateZ={20} className="mt-4 text-center w-full">
+                  <p className="text-xs text-green-300/50">
+                    By creating an account, you agree to our{" "}
+                    <a href="#" className="text-green-400 hover:text-green-300">
+                      Terms of Service
+                    </a>{" "}
+                    and{" "}
+                    <a href="#" className="text-green-400 hover:text-green-300">
+                      Privacy Policy
+                    </a>
+                  </p>
+                </CardItem>
+              )}
+            </form>
           </div>
-
-          {/* Terms */}
-          {!isLogin && (
-            <div className="mt-4 text-center">
-              <p className="text-xs text-green-300/50">
-                By creating an account, you agree to our{" "}
-                <a href="#" className="text-green-400 hover:text-green-300">
-                  Terms of Service
-                </a>{" "}
-                and{" "}
-                <a href="#" className="text-green-400 hover:text-green-300">
-                  Privacy Policy
-                </a>
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+        </CardBody>
+      </CardContainer>
 
       <style jsx>{`
         @keyframes float-1 {
@@ -447,10 +488,24 @@ const AuthPage = ({ onClose, onSuccess }) => {
           0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
           50% { transform: translateY(-8px) translateX(-4px); opacity: 0.5; }
         }
-
         @keyframes sparkle-auth {
           0%, 100% { transform: scale(0); opacity: 0; }
           50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        /* Custom scrollbar styles */
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #10b98160;
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #10b98180;
         }
 
         .animate-float-1 { animation: float-1 5s ease-in-out infinite; }

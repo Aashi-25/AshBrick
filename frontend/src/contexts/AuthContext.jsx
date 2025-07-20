@@ -94,7 +94,7 @@ export const AuthProvider = ({ children }) => {
     });
 
     // Fallback: force loading to false after 5 seconds
-    const timeout = setTimeout(() => setLoading(false), 5000);
+    // const timeout = setTimeout(() => setLoading(false), 5000);
 
     return () => {
       subscription.unsubscribe();

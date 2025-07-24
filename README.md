@@ -6,7 +6,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Built%20with-Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" />
   <img src="https://img.shields.io/badge/Auth-Role%20Based%20Access-blue?style=for-the-badge&logo=auth0&logoColor=white" />
-  <img src="https://img.shields.io/badge/AI--Powered-OpenAI-00D4AA?style=for-the-badge&logo=openai" />
+  <img src="https://img.shields.io/badge/AI--Powered-OpenAI-00D4AA?style=for-the-badge&logo=openai" />     
   <img src="https://img.shields.io/badge/For%20the%20Planet-green-4CAF50?style=for-the-badge" />
 </p>
 

@@ -1,11 +1,12 @@
-import { useState } from 'react'
-import { useAuth } from '../../contexts/AuthContext'
-import { 
-  Factory, 
-  Plus, 
-  List, 
-  MessageSquare, 
-  Settings, 
+import { useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import {
+  Factory,
+  Plus,
+  List,
+  MessageSquare,
+  Settings,
   BarChart3,
   MapPin,
   Upload,
@@ -14,62 +15,74 @@ import {
   Truck,
   Calendar,
   Sparkles,
-  ArrowRight
-} from 'lucide-react'
+  ArrowRight,
+} from "lucide-react";
 
 const SupplierDashboard = () => {
-  const { user, profile, signOut } = useAuth()
-  const [activeTab, setActiveTab] = useState('dashboard')
+  const { user, profile, signOut } = useAuth();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [ashListing, setAshListing] = useState({
-    volume: '',
-    location: '',
-    price: '',
-    description: ''
-  })
+    volume: "",
+    location: "",
+    price: "",
+    description: "",
+  });
+  console.log("USER:", user); // raw Supabase user
+  console.log("PROFILE:", profile); // your enriched profile with name, role, email
+
+  if (
+    !user ||
+    (profile?.role !== "Supplier" && user?.user_metadata?.role !== "Supplier")
+  ) {
+    console.warn("Unauthorized access to SupplierDashboard");
+    navigate("/");
+    return null;
+  }
 
   const sidebarItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-    { id: 'add-listing', label: 'Add Ash Listing', icon: Plus },
-    { id: 'my-listings', label: 'My Listings', icon: List },
-    { id: 'messages', label: 'Messages', icon: MessageSquare },
-    { id: 'settings', label: 'Settings', icon: Settings }
-  ]
+    { id: "dashboard", label: "Dashboard", icon: BarChart3 },
+    { id: "add-listing", label: "Add Ash Listing", icon: Plus },
+    { id: "my-listings", label: "My Listings", icon: List },
+    { id: "messages", label: "Messages", icon: MessageSquare },
+    { id: "settings", label: "Settings", icon: Settings },
+  ];
 
   const mockListings = [
     {
       id: 1,
       volume: 500,
-      location: 'Mumbai, Maharashtra',
+      location: "Mumbai, Maharashtra",
       price: 2500,
-      status: 'Active',
-      created: '2024-01-15'
+      status: "Active",
+      created: "2024-01-15",
     },
     {
       id: 2,
       volume: 750,
-      location: 'Pune, Maharashtra',
+      location: "Pune, Maharashtra",
       price: 2800,
-      status: 'Pending',
-      created: '2024-01-10'
-    }
-  ]
+      status: "Pending",
+      created: "2024-01-10",
+    },
+  ];
 
   const handleInputChange = (e) => {
     setAshListing({
       ...ashListing,
-      [e.target.name]: e.target.value
-    })
-  }
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const handleSubmitListing = (e) => {
-    e.preventDefault()
-    console.log('New listing:', ashListing)
+    e.preventDefault();
+    console.log("New listing:", ashListing);
     // Handle listing submission
-  }
+  };
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'dashboard':
+      case "dashboard":
         return (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -93,12 +106,14 @@ const SupplierDashboard = () => {
               />
             </div>
           </div>
-        )
+        );
 
-      case 'add-listing':
+      case "add-listing":
         return (
           <div className="bg-black/80 rounded-xl border border-green-400/20 p-6 shadow-lg shadow-green-400/10">
-            <h2 className="text-xl font-bold text-green-400 mb-6">Add New Ash Listing</h2>
+            <h2 className="text-xl font-bold text-green-400 mb-6">
+              Add New Ash Listing
+            </h2>
             <form onSubmit={handleSubmitListing} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -173,7 +188,9 @@ const SupplierDashboard = () => {
                   <p className="text-sm text-green-300/70">
                     Click to upload or drag and drop
                   </p>
-                  <p className="text-xs text-green-300/50">PDF files only (Max 10MB)</p>
+                  <p className="text-xs text-green-300/50">
+                    PDF files only (Max 10MB)
+                  </p>
                   <input type="file" className="hidden" accept=".pdf" />
                 </div>
               </div>
@@ -190,15 +207,15 @@ const SupplierDashboard = () => {
               </button>
             </form>
           </div>
-        )
+        );
 
-      case 'my-listings':
+      case "my-listings":
         return (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-bold text-green-400">My Listings</h2>
               <button
-                onClick={() => setActiveTab('add-listing')}
+                onClick={() => setActiveTab("add-listing")}
                 className="bg-gradient-to-r from-green-400 to-emerald-500 text-black px-4 py-2 rounded-xl font-semibold hover:scale-105 transition-all duration-300 group relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-green-300 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -210,7 +227,10 @@ const SupplierDashboard = () => {
             </div>
             <div className="grid gap-4">
               {mockListings.map((listing) => (
-                <div key={listing.id} className="bg-black/80 p-6 rounded-xl border border-green-400/20 shadow-lg shadow-green-400/10 hover:shadow-green-400/20 transition-all duration-300 group">
+                <div
+                  key={listing.id}
+                  className="bg-black/80 p-6 rounded-xl border border-green-400/20 shadow-lg shadow-green-400/10 hover:shadow-green-400/20 transition-all duration-300 group"
+                >
                   <div className="flex justify-between items-start">
                     <div className="space-y-2">
                       <h3 className="font-semibold text-green-400">
@@ -231,11 +251,13 @@ const SupplierDashboard = () => {
                         </div>
                       </div>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      listing.status === 'Active' 
-                        ? 'bg-green-900/30 text-green-400 border border-green-400/20' 
-                        : 'bg-yellow-900/30 text-yellow-400 border border-yellow-400/20'
-                    }`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        listing.status === "Active"
+                          ? "bg-green-900/30 text-green-400 border border-green-400/20"
+                          : "bg-yellow-900/30 text-yellow-400 border border-yellow-400/20"
+                      }`}
+                    >
                       {listing.status}
                     </span>
                   </div>
@@ -243,17 +265,19 @@ const SupplierDashboard = () => {
               ))}
             </div>
           </div>
-        )
+        );
 
       default:
         return (
           <div className="bg-black/80 rounded-xl border border-green-400/20 p-6 shadow-lg shadow-green-400/10">
-            <h2 className="text-xl font-bold text-green-400 mb-4">{activeTab}</h2>
+            <h2 className="text-xl font-bold text-green-400 mb-4">
+              {activeTab}
+            </h2>
             <p className="text-green-300/70">This section is coming soon...</p>
           </div>
-        )
+        );
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-green-900/20 to-black text-white flex relative overflow-hidden">
@@ -262,7 +286,9 @@ const SupplierDashboard = () => {
         {[...Array(12)].map((_, i) => (
           <div
             key={i}
-            className={`absolute w-2 h-2 bg-green-400/80 rounded-full animate-float-${i % 6 + 1} shadow-lg shadow-green-400/50`}
+            className={`absolute w-2 h-2 bg-green-400/80 rounded-full animate-float-${
+              (i % 6) + 1
+            } shadow-lg shadow-green-400/50`}
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -276,7 +302,9 @@ const SupplierDashboard = () => {
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className={`absolute border-2 border-green-400/60 rounded-full animate-morphing-wave-${i % 3 + 1} shadow-lg shadow-green-400/30`}
+            className={`absolute border-2 border-green-400/60 rounded-full animate-morphing-wave-${
+              (i % 3) + 1
+            } shadow-lg shadow-green-400/30`}
             style={{
               width: `${100 + i * 40}px`,
               height: `${100 + i * 40}px`,
@@ -310,26 +338,30 @@ const SupplierDashboard = () => {
         <nav className="flex-1 p-4">
           <ul className="space-y-2">
             {sidebarItems.map((item, index) => {
-              const IconComponent = item.icon
+              const IconComponent = item.icon;
               return (
                 <li key={item.id}>
                   <button
                     onClick={() => setActiveTab(item.id)}
                     className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
                       activeTab === item.id
-                        ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-black'
-                        : 'text-green-300/70 hover:bg-green-400/20'
+                        ? "bg-gradient-to-r from-green-400 to-emerald-500 text-black"
+                        : "text-green-300/70 hover:bg-green-400/20"
                     }`}
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <IconComponent className={`w-5 h-5 ${activeTab === item.id ? 'text-black' : 'text-green-400'} group-hover:scale-110 transition-transform duration-300`} />
+                    <IconComponent
+                      className={`w-5 h-5 ${
+                        activeTab === item.id ? "text-black" : "text-green-400"
+                      } group-hover:scale-110 transition-transform duration-300`}
+                    />
                     <span className="font-medium">{item.label}</span>
                     {activeTab === item.id && (
                       <div className="ml-auto w-0 h-1 bg-green-400 group-hover:w-6 transition-all duration-300 shadow-sm shadow-green-400/50" />
                     )}
                   </button>
                 </li>
-              )
+              );
             })}
           </ul>
         </nav>
@@ -370,10 +402,10 @@ const SupplierDashboard = () => {
         <div className="max-w-6xl mx-auto">
           <div className="mb-6">
             <h1 className="text-2xl font-bold capitalize bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-              {activeTab.replace('-', ' ')}
+              {activeTab.replace("-", " ")}
             </h1>
             <p className="text-green-300/70">
-              Welcome back, {user?.email?.split('@')[0]}!
+              Welcome back, {profile?.name ?? user?.email?.split("@")[0]}!
             </p>
           </div>
           {renderContent()}
@@ -382,97 +414,256 @@ const SupplierDashboard = () => {
 
       <style jsx>{`
         @keyframes float-1 {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.4; }
-          33% { transform: translateY(-25px) translateX(15px) rotate(120deg); opacity: 0.9; }
-          66% { transform: translateY(-10px) translateX(-8px) rotate(240deg); opacity: 0.6; }
+          0%,
+          100% {
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+            opacity: 0.4;
+          }
+          33% {
+            transform: translateY(-25px) translateX(15px) rotate(120deg);
+            opacity: 0.9;
+          }
+          66% {
+            transform: translateY(-10px) translateX(-8px) rotate(240deg);
+            opacity: 0.6;
+          }
         }
         @keyframes float-2 {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.5; }
-          33% { transform: translateY(-20px) translateX(-12px) rotate(90deg); opacity: 0.9; }
-          66% { transform: translateY(-30px) translateX(18px) rotate(180deg); opacity: 0.7; }
+          0%,
+          100% {
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+            opacity: 0.5;
+          }
+          33% {
+            transform: translateY(-20px) translateX(-12px) rotate(90deg);
+            opacity: 0.9;
+          }
+          66% {
+            transform: translateY(-30px) translateX(18px) rotate(180deg);
+            opacity: 0.7;
+          }
         }
         @keyframes float-3 {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.3; }
-          33% { transform: translateY(-35px) translateX(20px) rotate(150deg); opacity: 0.8; }
-          66% { transform: translateY(-8px) translateX(-15px) rotate(300deg); opacity: 0.5; }
+          0%,
+          100% {
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+            opacity: 0.3;
+          }
+          33% {
+            transform: translateY(-35px) translateX(20px) rotate(150deg);
+            opacity: 0.8;
+          }
+          66% {
+            transform: translateY(-8px) translateX(-15px) rotate(300deg);
+            opacity: 0.5;
+          }
         }
         @keyframes float-4 {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.4; }
-          33% { transform: translateY(-18px) translateX(-20px) rotate(60deg); opacity: 0.8; }
-          66% { transform: translateY(-28px) translateX(12px) rotate(270deg); opacity: 0.6; }
+          0%,
+          100% {
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+            opacity: 0.4;
+          }
+          33% {
+            transform: translateY(-18px) translateX(-20px) rotate(60deg);
+            opacity: 0.8;
+          }
+          66% {
+            transform: translateY(-28px) translateX(12px) rotate(270deg);
+            opacity: 0.6;
+          }
         }
         @keyframes float-5 {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.3; }
-          33% { transform: translateY(-22px) translateX(25px) rotate(200deg); opacity: 0.7; }
-          66% { transform: translateY(-12px) translateX(-18px) rotate(320deg); opacity: 0.5; }
+          0%,
+          100% {
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+            opacity: 0.3;
+          }
+          33% {
+            transform: translateY(-22px) translateX(25px) rotate(200deg);
+            opacity: 0.7;
+          }
+          66% {
+            transform: translateY(-12px) translateX(-18px) rotate(320deg);
+            opacity: 0.5;
+          }
         }
         @keyframes float-6 {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.5; }
-          33% { transform: translateY(-30px) translateX(-25px) rotate(45deg); opacity: 0.9; }
-          66% { transform: translateY(-20px) translateX(22px) rotate(225deg); opacity: 0.6; }
+          0%,
+          100% {
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+            opacity: 0.5;
+          }
+          33% {
+            transform: translateY(-30px) translateX(-25px) rotate(45deg);
+            opacity: 0.9;
+          }
+          66% {
+            transform: translateY(-20px) translateX(22px) rotate(225deg);
+            opacity: 0.6;
+          }
         }
 
         @keyframes morphing-wave-1 {
-          0% { transform: scale(0.5) rotate(0deg); opacity: 0.4; border-radius: 50%; }
-          33% { transform: scale(1.2) rotate(120deg); opacity: 0.2; border-radius: 30%; }
-          66% { transform: scale(0.8) rotate(240deg); opacity: 0.3; border-radius: 60%; }
-          100% { transform: scale(1.5) rotate(360deg); opacity: 0; border-radius: 50%; }
+          0% {
+            transform: scale(0.5) rotate(0deg);
+            opacity: 0.4;
+            border-radius: 50%;
+          }
+          33% {
+            transform: scale(1.2) rotate(120deg);
+            opacity: 0.2;
+            border-radius: 30%;
+          }
+          66% {
+            transform: scale(0.8) rotate(240deg);
+            opacity: 0.3;
+            border-radius: 60%;
+          }
+          100% {
+            transform: scale(1.5) rotate(360deg);
+            opacity: 0;
+            border-radius: 50%;
+          }
         }
         @keyframes morphing-wave-2 {
-          0% { transform: scale(0.3) rotate(0deg); opacity: 0.3; border-radius: 40%; }
-          33% { transform: scale(1.0) rotate(90deg); opacity: 0.1; border-radius: 70%; }
-          66% { transform: scale(0.7) rotate(180deg); opacity: 0.2; border-radius: 20%; }
-          100% { transform: scale(1.3) rotate(270deg); opacity: 0; border-radius: 50%; }
+          0% {
+            transform: scale(0.3) rotate(0deg);
+            opacity: 0.3;
+            border-radius: 40%;
+          }
+          33% {
+            transform: scale(1) rotate(90deg);
+            opacity: 0.1;
+            border-radius: 70%;
+          }
+          66% {
+            transform: scale(0.7) rotate(180deg);
+            opacity: 0.2;
+            border-radius: 20%;
+          }
+          100% {
+            transform: scale(1.3) rotate(270deg);
+            opacity: 0;
+            border-radius: 50%;
+          }
         }
         @keyframes morphing-wave-3 {
-          0% { transform: scale(0.6) rotate(0deg); opacity: 0.2; border-radius: 60%; }
-          33% { transform: scale(1.4) rotate(150deg); opacity: 0.05; border-radius: 40%; }
-          66% { transform: scale(0.9) rotate(300deg); opacity: 0.15; border-radius: 80%; }
-          100% { transform: scale(1.6) rotate(450deg); opacity: 0; border-radius: 50%; }
+          0% {
+            transform: scale(0.6) rotate(0deg);
+            opacity: 0.2;
+            border-radius: 60%;
+          }
+          33% {
+            transform: scale(1.4) rotate(150deg);
+            opacity: 0.05;
+            border-radius: 40%;
+          }
+          66% {
+            transform: scale(0.9) rotate(300deg);
+            opacity: 0.15;
+            border-radius: 80%;
+          }
+          100% {
+            transform: scale(1.6) rotate(450deg);
+            opacity: 0;
+            border-radius: 50%;
+          }
         }
 
         @keyframes sparkle-logout {
-          0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
-          50% { transform: scale(1.5) rotate(180deg); opacity: 1; }
+          0%,
+          100% {
+            transform: scale(0) rotate(0deg);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1.5) rotate(180deg);
+            opacity: 1;
+          }
         }
 
         @keyframes sparkle-logout-2 {
-          0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
-          50% { transform: scale(1.2) rotate(-180deg); opacity: 1; }
+          0%,
+          100% {
+            transform: scale(0) rotate(0deg);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1.2) rotate(-180deg);
+            opacity: 1;
+          }
         }
 
         @keyframes pulse-logout {
-          0% { transform: scale(0.95); opacity: 0.5; }
-          50% { transform: scale(1.05); opacity: 0.3; }
-          100% { transform: scale(0.95); opacity: 0.5; }
+          0% {
+            transform: scale(0.95);
+            opacity: 0.5;
+          }
+          50% {
+            transform: scale(1.05);
+            opacity: 0.3;
+          }
+          100% {
+            transform: scale(0.95);
+            opacity: 0.5;
+          }
         }
 
-        .animate-float-1 { animation: float-1 8s ease-in-out infinite; }
-        .animate-float-2 { animation: float-2 10s ease-in-out infinite; }
-        .animate-float-3 { animation: float-3 7s ease-in-out infinite; }
-        .animate-float-4 { animation: float-4 9s ease-in-out infinite; }
-        .animate-float-5 { animation: float-5 6s ease-in-out infinite; }
-        .animate-float-6 { animation: float-6 11s ease-in-out infinite; }
-        .animate-morphing-wave-1 { animation: morphing-wave-1 6s ease-out infinite; }
-        .animate-morphing-wave-2 { animation: morphing-wave-2 5s ease-out infinite 1s; }
-        .animate-morphing-wave-3 { animation: morphing-wave-3 7s ease-out infinite 2s; }
-        .animate-sparkle-logout { animation: sparkle-logout 1s ease-in-out infinite; }
-        .animate-sparkle-logout-2 { animation: sparkle-logout-2 1s ease-in-out infinite 0.5s; }
-        .animate-pulse-logout { animation: pulse-logout 1.5s ease-in-out infinite; }
+        .animate-float-1 {
+          animation: float-1 8s ease-in-out infinite;
+        }
+        .animate-float-2 {
+          animation: float-2 10s ease-in-out infinite;
+        }
+        .animate-float-3 {
+          animation: float-3 7s ease-in-out infinite;
+        }
+        .animate-float-4 {
+          animation: float-4 9s ease-in-out infinite;
+        }
+        .animate-float-5 {
+          animation: float-5 6s ease-in-out infinite;
+        }
+        .animate-float-6 {
+          animation: float-6 11s ease-in-out infinite;
+        }
+        .animate-morphing-wave-1 {
+          animation: morphing-wave-1 6s ease-out infinite;
+        }
+        .animate-morphing-wave-2 {
+          animation: morphing-wave-2 5s ease-out infinite 1s;
+        }
+        .animate-morphing-wave-3 {
+          animation: morphing-wave-3 7s ease-out infinite 2s;
+        }
+        .animate-sparkle-logout {
+          animation: sparkle-logout 1s ease-in-out infinite;
+        }
+        .animate-sparkle-logout-2 {
+          animation: sparkle-logout-2 1s ease-in-out infinite 0.5s;
+        }
+        .animate-pulse-logout {
+          animation: pulse-logout 1.5s ease-in-out infinite;
+        }
       `}</style>
     </div>
-  )
-}
+  );
+};
 
 // Reusable card
 const InfoCard = ({ title, value, icon: Icon, color }) => (
-  <div className={`bg-black/80 p-6 rounded-xl border border-${color}-400/20 shadow-lg shadow-${color}-400/10 hover:shadow-${color}-400/20 transition-all duration-300 group relative overflow-hidden`}>
+  <div
+    className={`bg-black/80 p-6 rounded-xl border border-${color}-400/20 shadow-lg shadow-${color}-400/10 hover:shadow-${color}-400/20 transition-all duration-300 group relative overflow-hidden`}
+  >
     <div className="absolute inset-0 bg-gradient-to-r from-${color}-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
     <div className="flex items-center space-x-3 relative z-10">
       <div
         className={`w-12 h-12 bg-${color}-900/30 rounded-xl flex items-center justify-center`}
       >
-        <Icon className={`w-6 h-6 text-${color}-400 group-hover:scale-110 transition-transform duration-300`} />
+        <Icon
+          className={`w-6 h-6 text-${color}-400 group-hover:scale-110 transition-transform duration-300`}
+        />
       </div>
       <div>
         <p className="text-sm text-green-300/70">{title}</p>
@@ -480,6 +671,6 @@ const InfoCard = ({ title, value, icon: Icon, color }) => (
       </div>
     </div>
   </div>
-)
+);
 
-export default SupplierDashboard
+export default SupplierDashboard;

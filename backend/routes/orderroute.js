@@ -1,16 +1,22 @@
+
 import { Router } from "express";
 import {
   createOrder,
   getAllOrders,
   getOrderById,
+  updateOrder,
+  deleteOrder,
 } from "../controllers/orderController.js";
+
+import { verifyToken } from "../middlewares/VerifyToken.js";
 
 const orderrouter = Router();
 
-orderrouter.post("/", createOrder);
 
-orderrouter.get("/", getAllOrders);
-
-orderrouter.get("/:id", getOrderById);
+orderrouter.post("/", verifyToken, createOrder);
+orderrouter.get("/", verifyToken, getAllOrders);
+orderrouter.get("/:id", verifyToken, getOrderById);
+orderrouter.put("/:id", verifyToken, updateOrder);
+orderrouter.delete("/:id", verifyToken, deleteOrder);
 
 export default orderrouter;

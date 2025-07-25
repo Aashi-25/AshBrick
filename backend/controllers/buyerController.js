@@ -1,4 +1,4 @@
-import { con } from "../db/pgdb.js";// assuming you're using con.query for PostgreSQL
+import { con } from "../db/supabasesClients.js";
 
 export const registerBuyer = async (req, res) => {
   const { user_id, name, email } = req.body;
@@ -8,19 +8,43 @@ export const registerBuyer = async (req, res) => {
   }
 
   try {
-    const existing = await con.query("SELECT * FROM buyers WHERE user_id = $1", [user_id]);
-    if (existing.rows.length > 0) {
-      return res.status(200).json({ message: "Buyer already registered" });
+  
+    const { data: existingBuyer, error: checkError } = await con
+      .from("buyers")
+      .select("*")
+      .eq("user_id", user_id)
+      .single();
+
+    if (checkError && checkError.code !== "PGRST116") {
+     
+      throw checkError;
     }
 
-    const result = await con.query(
-      "INSERT INTO buyers (user_id, name, email) VALUES ($1, $2, $3) RETURNING *",
-      [user_id, name, email]
-    );
+    if (existingBuyer) {
+      return res.status(200).json({
+        message: "Buyer already registered",
+        buyer: existingBuyer,
+      });
+    }
 
-    res.status(201).json(result.rows[0]);
+    const { data: newBuyer, error: insertError } = await con
+      .from("buyers")
+      .insert({
+        user_id,
+        name: name.trim(),
+        email: email.toLowerCase(),
+      })
+      .select()
+      .single();
+
+    if (insertError) throw insertError;
+
+    return res.status(201).json({
+      message: "Buyer registered successfully",
+      buyer: newBuyer,
+    });
   } catch (err) {
     console.error("Error registering buyer:", err);
-    res.status(500).json({ error: "Failed to register buyer" });
+    return res.status(500).json({ error: "Failed to register buyer" });
   }
 };

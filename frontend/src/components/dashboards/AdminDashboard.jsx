@@ -1,10 +1,11 @@
-import { useState } from 'react'
-import { useAuth } from '../../contexts/AuthContext'
-import { 
-  Shield, 
-  BarChart3, 
-  FileText, 
-  Users, 
+import { useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import {
+  Shield,
+  BarChart3,
+  FileText,
+  Users,
   CreditCard,
   Factory,
   Building,
@@ -15,83 +16,90 @@ import {
   Edit,
   Trash2,
   Sparkles,
-  ArrowRight
-} from 'lucide-react'
+  ArrowRight,
+} from "lucide-react";
 
 const AdminDashboard = () => {
-  const { user, profile, signOut } = useAuth()
-  const [activeTab, setActiveTab] = useState('overview')
-  const [roleFilter, setRoleFilter] = useState('All Roles')
-  const [statusFilter, setStatusFilter] = useState('All Status')
+  const { user, profile, signOut } = useAuth();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("overview");
+  const [roleFilter, setRoleFilter] = useState("All Roles");
+  const [statusFilter, setStatusFilter] = useState("All Status");
+
+  if (!user || (profile?.role !== "Admin" && user?.user_metadata?.role !== "Admin")) {
+    console.warn("Unauthorized access to AdminDashboard");
+    navigate("/");
+    return null;
+  }
 
   const sidebarItems = [
-    { id: 'overview', label: 'Overview', icon: BarChart3 },
-    { id: 'reports', label: 'Reports', icon: FileText },
-    { id: 'users', label: 'Users', icon: Users },
-    { id: 'transactions', label: 'Transactions', icon: CreditCard }
-  ]
+    { id: "overview", label: "Overview", icon: BarChart3 },
+    { id: "reports", label: "Reports", icon: FileText },
+    { id: "users", label: "Users", icon: Users },
+    { id: "transactions", label: "Transactions", icon: CreditCard },
+  ];
 
   const mockUsers = [
     {
       id: 1,
-      email: 'supplier@example.com',
-      role: 'Supplier',
-      status: 'Active',
-      joinDate: '2024-01-15',
-      listings: 5
+      email: "supplier@example.com",
+      role: "Supplier",
+      status: "Active",
+      joinDate: "2024-01-15",
+      listings: 5,
     },
     {
       id: 2,
-      email: 'buyer@example.com',
-      role: 'Buyer',
-      status: 'Active',
-      joinDate: '2024-01-20',
-      orders: 3
+      email: "buyer@example.com",
+      role: "Buyer",
+      status: "Active",
+      joinDate: "2024-01-20",
+      orders: 3,
     },
     {
       id: 3,
-      email: 'inactive@example.com',
-      role: 'Buyer',
-      status: 'Inactive',
-      joinDate: '2024-01-10',
-      orders: 0
-    }
-  ]
+      email: "inactive@example.com",
+      role: "Buyer",
+      status: "Inactive",
+      joinDate: "2024-01-10",
+      orders: 0,
+    },
+  ];
 
   const mockTransactions = [
     {
-      id: 'TXN001',
-      buyer: 'buyer@example.com',
-      supplier: 'supplier@example.com',
+      id: "TXN001",
+      buyer: "buyer@example.com",
+      supplier: "supplier@example.com",
       amount: 125000,
       volume: 50,
-      status: 'Completed',
-      date: '2024-01-25'
+      status: "Completed",
+      date: "2024-01-25",
     },
     {
-      id: 'TXN002',
-      buyer: 'buyer2@example.com',
-      supplier: 'supplier@example.com',
+      id: "TXN002",
+      buyer: "buyer2@example.com",
+      supplier: "supplier@example.com",
       amount: 210000,
       volume: 75,
-      status: 'Pending',
-      date: '2024-01-24'
-    }
-  ]
+      status: "Pending",
+      date: "2024-01-24",
+    },
+  ];
 
   const generateESGReport = () => {
-    alert('ESG Report generation started. You will receive an email when ready.')
-  }
+    alert("ESG Report generation started. You will receive an email when ready.");
+  };
 
-  const filteredUsers = mockUsers.filter(u => {
-    const roleMatch = roleFilter === 'All Roles' || u.role === roleFilter
-    const statusMatch = statusFilter === 'All Status' || u.status === statusFilter
-    return roleMatch && statusMatch
-  })
+  const filteredUsers = mockUsers.filter((u) => {
+    const roleMatch = roleFilter === "All Roles" || u.role === roleFilter;
+    const statusMatch = statusFilter === "All Status" || u.status === statusFilter;
+    return roleMatch && statusMatch;
+  });
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'overview':
+      case "overview":
         return (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -145,16 +153,16 @@ const AdminDashboard = () => {
               </div>
             </div>
           </div>
-        )
+        );
 
-      case 'reports':
+      case "reports":
         return (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-bold text-green-400">ESG Reports</h2>
               <button
                 onClick={generateESGReport}
-                className="bg-gradient-to-r from-green-400 to-emerald-500 text-black px-6 py-3 rounded-xl font-semibold hover:scale-105 transition-all duration-300 group relative overflow-hidden"
+                className="bg-gradient-to-r from-green-400 to-emerald-500 text-black px-6 py-3 rounded-xl font-semibold hover:scale-105 transition-all duration-300 outline-none group relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-green-300 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <span className="relative z-10 flex items-center space-x-2">
@@ -207,9 +215,9 @@ const AdminDashboard = () => {
               </div>
             </div>
           </div>
-        )
+        );
 
-      case 'users':
+      case "users":
         return (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -217,7 +225,7 @@ const AdminDashboard = () => {
               <div className="flex space-x-3">
                 <select
                   value={roleFilter}
-                  onChange={e => setRoleFilter(e.target.value)}
+                  onChange={(e) => setRoleFilter(e.target.value)}
                   className="px-4 py-2 bg-black/50 border border-green-400/20 rounded-xl focus:ring-2 focus:ring-green-400 text-white hover:bg-green-400/10 transition-all duration-300 outline-none"
                 >
                   <option>All Roles</option>
@@ -227,7 +235,7 @@ const AdminDashboard = () => {
                 </select>
                 <select
                   value={statusFilter}
-                  onChange={e => setStatusFilter(e.target.value)}
+                  onChange={(e) => setStatusFilter(e.target.value)}
                   className="px-4 py-2 bg-black/50 border border-green-400/20 rounded-xl focus:ring-2 focus:ring-green-400 text-white hover:bg-green-400/10 transition-all duration-300 outline-none"
                 >
                   <option>All Status</option>
@@ -266,7 +274,7 @@ const AdminDashboard = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="w-10 h-10 bg-green-900/30 rounded-full flex items-center justify-center">
-                            {user.role === 'Supplier' ? (
+                            {user.role === "Supplier" ? (
                               <Factory className="w-5 h-5 text-green-400" />
                             ) : (
                               <Building className="w-5 h-5 text-green-400" />
@@ -278,20 +286,26 @@ const AdminDashboard = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          user.role === 'Supplier' 
-                            ? 'bg-green-900/30 text-green-400 border border-green-400/20'
-                            : 'bg-blue-900/30 text-blue-400 border border-blue-400/20'
-                        }`}>
+                        <span
+                          className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            user.role === "Supplier"
+                              ? "bg-green-900/30 text-green-400 border border-green-400/20"
+                              : user.role === "Buyer"
+                              ? "bg-blue-900/30 text-blue-400 border border-blue-400/20"
+                              : "bg-purple-900/30 text-purple-400 border border-purple-400/20"
+                          }`}
+                        >
                           {user.role}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          user.status === 'Active'
-                            ? 'bg-green-900/30 text-green-400 border border-green-400/20'
-                            : 'bg-red-900/30 text-red-400 border border-red-400/20'
-                        }`}>
+                        <span
+                          className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            user.status === "Active"
+                              ? "bg-green-900/30 text-green-400 border border-green-400/20"
+                              : "bg-red-900/30 text-red-400 border border-red-400/20"
+                          }`}
+                        >
                           {user.status}
                         </span>
                       </td>
@@ -320,15 +334,17 @@ const AdminDashboard = () => {
               </table>
             </div>
           </div>
-        )
+        );
 
-      case 'transactions':
+      case "transactions":
         return (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-bold text-green-400">Transaction Management</h2>
               <div className="flex space-x-3">
-                <select className="px-4 py-2 bg-black/50 border border-green-400/20 rounded-xl focus:ring-2 focus:ring-green-400 text-white hover:bg-green-400/10 transition-all duration-300 outline-none">
+                <select
+                  className="px-4 py-2 bg-black/50 border border-green-400/20 rounded-xl focus:ring-2 focus:ring-green-400 text-white hover:bg-green-400/10 transition-all duration-300 outline-none"
+                >
                   <option>All Status</option>
                   <option>Completed</option>
                   <option>Pending</option>
@@ -382,13 +398,15 @@ const AdminDashboard = () => {
                         {transaction.volume} tons
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          transaction.status === 'Completed'
-                            ? 'bg-green-900/30 text-green-400 border border-green-400/20'
-                            : transaction.status === 'Pending'
-                            ? 'bg-yellow-900/30 text-yellow-400 border border-yellow-400/20'
-                            : 'bg-red-900/30 text-red-400 border border-red-400/20'
-                        }`}>
+                        <span
+                          className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            transaction.status === "Completed"
+                              ? "bg-green-900/30 text-green-400 border border-green-400/20"
+                              : transaction.status === "Pending"
+                              ? "bg-yellow-900/30 text-yellow-400 border border-yellow-400/20"
+                              : "bg-red-900/30 text-red-400 border border-red-400/20"
+                          }`}
+                        >
                           {transaction.status}
                         </span>
                       </td>
@@ -401,12 +419,17 @@ const AdminDashboard = () => {
               </table>
             </div>
           </div>
-        )
+        );
 
       default:
-        return null
+        return (
+          <div className="bg-black/80 rounded-xl border border-green-400/20 p-6 shadow-lg shadow-green-400/10">
+            <h2 className="text-xl font-bold text-green-400 mb-4">{activeTab}</h2>
+            <p className="text-green-300/70">This section is coming soon...</p>
+          </div>
+        );
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-green-900/20 to-black text-white flex relative overflow-hidden">
@@ -442,43 +465,68 @@ const AdminDashboard = () => {
       </div>
 
       {/* Sidebar */}
-      <aside className="w-64 bg-black/95 border-r border-green-400/20 p-6 flex flex-col shadow-lg shadow-green-400/10">
-        <div className="flex items-center space-x-3 mb-8 group">
-          <div className="relative">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-all duration-500 shadow-lg shadow-green-400/20 group-hover:shadow-green-400/40">
-              <Shield className="w-6 h-6 text-black" />
+      <div className="w-64 bg-black/95 border-r border-green-400/20 flex flex-col shadow-lg shadow-green-400/10">
+        <div className="p-6 border-b border-green-400/20">
+          <div className="flex items-center space-x-3 group">
+            <div className="relative">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-all duration-500 shadow-lg shadow-green-400/20 group-hover:shadow-green-400/40">
+                <Shield className="w-6 h-6 text-black" />
+              </div>
+              <div className="absolute inset-0 w-10 h-10 bg-green-400 opacity-0 group-hover:opacity-40 blur-xl transition-all duration-500 rounded-xl" />
             </div>
-            <div className="absolute inset-0 w-10 h-10 bg-green-400 opacity-0 group-hover:opacity-40 blur-xl transition-all duration-500 rounded-xl" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-              Admin Dashboard
-            </h1>
-            <p className="text-sm text-green-300/70">AshBrick Admin</p>
+            <div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                AshBrick
+              </h1>
+              <p className="text-sm text-green-300/70">Admin Portal</p>
+            </div>
           </div>
         </div>
-        <nav className="flex flex-col space-y-4 flex-1">
-          {sidebarItems.map(({ id, label, icon: Icon }, index) => (
-            <button
-              key={id}
-              onClick={() => setActiveTab(id)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-semibold transition-all duration-300 group ${
-                activeTab === id
-                  ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-black'
-                  : 'text-green-300/70 hover:bg-green-400/20'
-              }`}
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <Icon className={`w-5 h-5 ${activeTab === id ? 'text-black' : 'text-green-400'} group-hover:scale-110 transition-transform duration-300`} />
-              <span>{label}</span>
-              {activeTab === id && (
-                <div className="ml-auto w-0 h-1 bg-green-400 group-hover:w-6 transition-all duration-300 shadow-sm shadow-green-400/50" />
-              )}
-            </button>
-          ))}
+
+        <nav className="flex-1 p-4">
+          <ul className="space-y-2">
+            {sidebarItems.map((item, index) => {
+              const IconComponent = item.icon;
+              return (
+                <li key={item.id}>
+                  <button
+                    onClick={() => setActiveTab(item.id)}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
+                      activeTab === item.id
+                        ? "bg-gradient-to-r from-green-400 to-emerald-500 text-black"
+                        : "text-green-300/70 hover:bg-green-400/20"
+                    }`}
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <IconComponent
+                      className={`w-5 h-5 ${
+                        activeTab === item.id ? "text-black" : "text-green-400"
+                      } group-hover:scale-110 transition-transform duration-300`}
+                    />
+                    <span className="font-medium">{item.label}</span>
+                    {activeTab === item.id && (
+                      <div className="ml-auto w-0 h-1 bg-green-400 group-hover:w-6 transition-all duration-300 shadow-sm shadow-green-400/50" />
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        <div className="p-4 border-t border-green-400/20">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-green-400/20">
+              <Shield className="w-5 h-5 text-black" />
+            </div>
+            <div>
+              <p className="font-medium text-green-300">{user?.email}</p>
+              <p className="text-sm text-green-300/70">{profile?.role}</p>
+            </div>
+          </div>
           <button
             onClick={signOut}
-            className="mt-auto px-4 py-3 bg-gradient-to-r from-red-500 to-orange-500 text-white font-semibold rounded-xl transition-all duration-300 group relative overflow-hidden shadow-lg shadow-red-500/50 hover:shadow-red-500/70 hover:scale-105"
+            className="w-full text-left px-4 py-3 bg-gradient-to-r from-red-500 to-orange-500 text-white font-semibold rounded-xl transition-all duration-300 group relative overflow-hidden shadow-lg shadow-red-500/50 hover:shadow-red-500/70 hover:scale-105"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-orange-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-500" />
@@ -494,125 +542,303 @@ const AdminDashboard = () => {
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
             </span>
           </button>
-        </nav>
-      </aside>
-      <main className="flex-1 p-8">
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 p-6">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-2xl font-bold capitalize bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent mb-2">
-            {activeTab.replace('-', ' ')}
-          </h1>
-          <p className="text-green-300/70 mb-6">
-            Welcome back, {user?.email?.split('@')[0]}!
-          </p>
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold capitalize bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+              {activeTab.replace("-", " ")}
+            </h1>
+            <p className="text-green-300/70">
+              Welcome back, {user?.email?.split("@")[0]}!
+            </p>
+          </div>
           {renderContent()}
         </div>
-      </main>
+      </div>
 
       <style jsx>{`
         @keyframes float-1 {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.4; }
-          33% { transform: translateY(-25px) translateX(15px) rotate(120deg); opacity: 0.9; }
-          66% { transform: translateY(-10px) translateX(-8px) rotate(240deg); opacity: 0.6; }
+          0%,
+          100% {
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+            opacity: 0.4;
+          }
+          33% {
+            transform: translateY(-25px) translateX(15px) rotate(120deg);
+            opacity: 0.9;
+          }
+          66% {
+            transform: translateY(-10px) translateX(-8px) rotate(240deg);
+            opacity: 0.6;
+          }
         }
         @keyframes float-2 {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.5; }
-          33% { transform: translateY(-20px) translateX(-12px) rotate(90deg); opacity: 0.9; }
-          66% { transform: translateY(-30px) translateX(18px) rotate(180deg); opacity: 0.7; }
+          0%,
+          100% {
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+            opacity: 0.5;
+          }
+          33% {
+            transform: translateY(-20px) translateX(-12px) rotate(90deg);
+            opacity: 0.9;
+          }
+          66% {
+            transform: translateY(-30px) translateX(18px) rotate(180deg);
+            opacity: 0.7;
+          }
         }
         @keyframes float-3 {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.3; }
-          33% { transform: translateY(-35px) translateX(20px) rotate(150deg); opacity: 0.8; }
-          66% { transform: translateY(-8px) translateX(-15px) rotate(300deg); opacity: 0.5; }
+          0%,
+          100% {
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+            opacity: 0.3;
+          }
+          33% {
+            transform: translateY(-35px) translateX(20px) rotate(150deg);
+            opacity: 0.8;
+          }
+          66% {
+            transform: translateY(-8px) translateX(-15px) rotate(300deg);
+            opacity: 0.5;
+          }
         }
         @keyframes float-4 {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.4; }
-          33% { transform: translateY(-18px) translateX(-20px) rotate(60deg); opacity: 0.8; }
-          66% { transform: translateY(-28px) translateX(12px) rotate(270deg); opacity: 0.6; }
+          0%,
+          100% {
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+            opacity: 0.4;
+          }
+          33% {
+            transform: translateY(-18px) translateX(-20px) rotate(60deg);
+            opacity: 0.8;
+          }
+          66% {
+            transform: translateY(-28px) translateX(12px) rotate(270deg);
+            opacity: 0.6;
+          }
         }
         @keyframes float-5 {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.3; }
-          33% { transform: translateY(-22px) translateX(25px) rotate(200deg); opacity: 0.7; }
-          66% { transform: translateY(-12px) translateX(-18px) rotate(320deg); opacity: 0.5; }
+          0%,
+          100% {
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+            opacity: 0.3;
+          }
+          33% {
+            transform: translateY(-22px) translateX(25px) rotate(200deg);
+            opacity: 0.7;
+          }
+          66% {
+            transform: translateY(-12px) translateX(-18px) rotate(320deg);
+            opacity: 0.5;
+          }
         }
         @keyframes float-6 {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.5; }
-          33% { transform: translateY(-30px) translateX(-25px) rotate(45deg); opacity: 0.9; }
-          66% { transform: translateY(-20px) translateX(22px) rotate(225deg); opacity: 0.6; }
+          0%,
+          100% {
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+            opacity: 0.5;
+          }
+          33% {
+            transform: translateY(-30px) translateX(-25px) rotate(45deg);
+            opacity: 0.9;
+          }
+          66% {
+            transform: translateY(-20px) translateX(22px) rotate(225deg);
+            opacity: 0.6;
+          }
         }
 
         @keyframes morphing-wave-1 {
-          0% { transform: scale(0.5) rotate(0deg); opacity: 0.4; border-radius: 50%; }
-          33% { transform: scale(1.2) rotate(120deg); opacity: 0.2; border-radius: 30%; }
-          66% { transform: scale(0.8) rotate(240deg); opacity: 0.3; border-radius: 60%; }
-          100% { transform: scale(1.5) rotate(360deg); opacity: 0; border-radius: 50%; }
+          0% {
+            transform: scale(0.5) rotate(0deg);
+            opacity: 0.4;
+            border-radius: 50%;
+          }
+          33% {
+            transform: scale(1.2) rotate(120deg);
+            opacity: 0.2;
+            border-radius: 30%;
+          }
+          66% {
+            transform: scale(0.8) rotate(240deg);
+            opacity: 0.3;
+            border-radius: 60%;
+          }
+          100% {
+            transform: scale(1.5) rotate(360deg);
+            opacity: 0;
+            border-radius: 50%;
+          }
         }
         @keyframes morphing-wave-2 {
-          0% { transform: scale(0.3) rotate(0deg); opacity: 0.3; border-radius: 40%; }
-          33% { transform: scale(1.0) rotate(90deg); opacity: 0.1; border-radius: 70%; }
-          66% { transform: scale(0.7) rotate(180deg); opacity: 0.2; border-radius: 20%; }
-          100% { transform: scale(1.3) rotate(270deg); opacity: 0; border-radius: 50%; }
+          0% {
+            transform: scale(0.3) rotate(0deg);
+            opacity: 0.3;
+            border-radius: 40%;
+          }
+          33% {
+            transform: scale(1.0) rotate(90deg);
+            opacity: 0.1;
+            border-radius: 70%;
+          }
+          66% {
+            transform: scale(0.7) rotate(180deg);
+            opacity: 0.2;
+            border-radius: 20%;
+          }
+          100% {
+            transform: scale(1.3) rotate(270deg);
+            opacity: 0;
+            border-radius: 50%;
+          }
         }
         @keyframes morphing-wave-3 {
-          0% { transform: scale(0.6) rotate(0deg); opacity: 0.2; border-radius: 60%; }
-          33% { transform: scale(1.4) rotate(150deg); opacity: 0.05; border-radius: 40%; }
-          66% { transform: scale(0.9) rotate(300deg); opacity: 0.15; border-radius: 80%; }
-          100% { transform: scale(1.6) rotate(450deg); opacity: 0; border-radius: 50%; }
+          0% {
+            transform: scale(0.6) rotate(0deg);
+            opacity: 0.2;
+            border-radius: 60%;
+          }
+          33% {
+            transform: scale(1.4) rotate(150deg);
+            opacity: 0.05;
+            border-radius: 40%;
+          }
+          66% {
+            transform: scale(0.9) rotate(300deg);
+            opacity: 0.15;
+            border-radius: 80%;
+          }
+          100% {
+            transform: scale(1.6) rotate(450deg);
+            opacity: 0;
+            border-radius: 50%;
+          }
         }
 
         @keyframes pulse-ring {
-          0% { transform: scale(0.8); opacity: 0.5; }
-          50% { transform: scale(1.2); opacity: 0.2; }
-          100% { transform: scale(1.5); opacity: 0; }
+          0% {
+            transform: scale(0.8);
+            opacity: 0.3;
+          }
+          50% {
+            transform: scale(1.2);
+            opacity: 0.1;
+          }
+          100% {
+            transform: scale(0.8);
+            opacity: 0.3;
+          }
         }
 
         @keyframes sparkle-logout {
-          0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
-          50% { transform: scale(1.5) rotate(180deg); opacity: 1; }
+          0%,
+          100% {
+            transform: scale(0) rotate(0deg);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1.5) rotate(180deg);
+            opacity: 1;
+          }
         }
 
         @keyframes sparkle-logout-2 {
-          0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
-          50% { transform: scale(1.2) rotate(-180deg); opacity: 1; }
+          0%,
+          100% {
+            transform: scale(0) rotate(0deg);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1.2) rotate(-180deg);
+            opacity: 1;
+          }
         }
 
         @keyframes pulse-logout {
-          0% { transform: scale(0.95); opacity: 0.5; }
-          50% { transform: scale(1.05); opacity: 0.3; }
-          100% { transform: scale(0.95); opacity: 0.5; }
+          0% {
+            transform: scale(0.95);
+            opacity: 0.5;
+          }
+          50% {
+            transform: scale(1.05);
+            opacity: 0.3;
+          }
+          100% {
+            transform: scale(0.95);
+            opacity: 0.5;
+          }
         }
 
-        .animate-float-1 { animation: float-1 8s ease-in-out infinite; }
-        .animate-float-2 { animation: float-2 10s ease-in-out infinite; }
-        .animate-float-3 { animation: float-3 7s ease-in-out infinite; }
-        .animate-float-4 { animation: float-4 9s ease-in-out infinite; }
-        .animate-float-5 { animation: float-5 6s ease-in-out infinite; }
-        .animate-float-6 { animation: float-6 11s ease-in-out infinite; }
-        .animate-morphing-wave-1 { animation: morphing-wave-1 6s ease-out infinite; }
-        .animate-morphing-wave-2 { animation: morphing-wave-2 5s ease-out infinite 1s; }
-        .animate-morphing-wave-3 { animation: morphing-wave-3 7s ease-out infinite 2s; }
-        .animate-pulse-ring { animation: pulse-ring 1s ease-out infinite; }
-        .animate-sparkle-logout { animation: sparkle-logout 1s ease-in-out infinite; }
-        .animate-sparkle-logout-2 { animation: sparkle-logout-2 1s ease-in-out infinite 0.5s; }
-        .animate-pulse-logout { animation: pulse-logout 1.5s ease-in-out infinite; }
+        .animate-float-1 {
+          animation: float-1 8s ease-in-out infinite;
+        }
+        .animate-float-2 {
+          animation: float-2 10s ease-in-out infinite;
+        }
+        .animate-float-3 {
+          animation: float-3 7s ease-in-out infinite;
+        }
+        .animate-float-4 {
+          animation: float-4 9s ease-in-out infinite;
+        }
+        .animate-float-5 {
+          animation: float-5 6s ease-in-out infinite;
+        }
+        .animate-float-6 {
+          animation: float-6 11s ease-in-out infinite;
+        }
+        .animate-morphing-wave-1 {
+          animation: morphing-wave-1 6s ease-out infinite;
+        }
+        .animate-morphing-wave-2 {
+          animation: morphing-wave-2 5s ease-out infinite 1s;
+        }
+        .animate-morphing-wave-3 {
+          animation: morphing-wave-3 7s ease-out infinite 2s;
+        }
+        .animate-pulse-ring {
+          animation: pulse-ring 2s ease-in-out infinite;
+        }
+        .animate-sparkle-logout {
+          animation: sparkle-logout 1s ease-in-out infinite;
+        }
+        .animate-sparkle-logout-2 {
+          animation: sparkle-logout-2 1s ease-in-out infinite 0.5s;
+        }
+        .animate-pulse-logout {
+          animation: pulse-logout 1.5s ease-in-out infinite;
+        }
       `}</style>
     </div>
-  )
-}
+  );
+};
 
+// Reusable InfoCard Component
 const InfoCard = ({ title, value, unit, icon: Icon, color }) => (
-  <div className={`bg-black/80 p-6 rounded-xl border border-${color}-400/20 shadow-lg shadow-${color}-400/10 hover:shadow-${color}-400/20 transition-all duration-300 group relative overflow-hidden`}>
-    <div className="absolute inset-0 bg-gradient-to-r from-${color}-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+  <div
+    className={`bg-black/80 p-6 rounded-xl border border-${color}-400/20 shadow-lg shadow-${color}-400/10 hover:shadow-${color}-400/20 transition-all duration-300 group relative overflow-hidden`}
+  >
+    <div className={`absolute inset-0 bg-gradient-to-r from-${color}-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
     <div className="flex items-center space-x-3 relative z-10">
-      <div className={`w-12 h-12 bg-${color}-900/30 rounded-xl flex items-center justify-center`}>
-        <Icon className={`w-6 h-6 text-${color}-400 group-hover:scale-110 transition-transform duration-300`} />
+      <div
+        className={`w-12 h-12 bg-${color}-900/30 rounded-xl flex items-center justify-center`}
+      >
+        <Icon
+          className={`w-6 h-6 text-${color}-400 group-hover:scale-110 transition-transform duration-300`}
+        />
       </div>
       <div>
         <p className="text-sm text-green-300/70">{title}</p>
-        <p className="text-2xl font-bold text-green-400">{value}</p>
-        {unit && <p className="text-xs text-green-300/50">{unit}</p>}
+        <p className="text-2xl font-bold text-green-400">
+          {value} {unit && <span className="text-sm">{unit}</span>}
+        </p>
       </div>
     </div>
   </div>
-)
+);
 
-export default AdminDashboard
+export default AdminDashboard;

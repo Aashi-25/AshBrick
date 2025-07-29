@@ -553,7 +553,7 @@ const AdminDashboard = () => {
               {activeTab.replace("-", " ")}
             </h1>
             <p className="text-green-300/70">
-              Welcome back, {user?.email?.split("@")[0]}!
+              Welcome back, {profile?.name}!
             </p>
           </div>
           {renderContent()}

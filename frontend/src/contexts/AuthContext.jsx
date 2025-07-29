@@ -11,6 +11,77 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const handleProfileSetup = async (sessionUser) => {
+    try {
+      console.log("🔍 Setting up profile for user:", sessionUser.id);
+
+      // Try to fetch existing profile first
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, role, name, email")
+        .eq("id", sessionUser.id)
+        .single();
+
+      const metadata = sessionUser.user_metadata || {};
+      const fallbackName =
+        metadata.name || sessionUser.email?.split("@")[0] || "Unknown";
+      const fallbackRole = metadata.role || "Buyer";
+
+      console.log("📊 Profile data:", { data, error });
+      console.log("🔄 Fallback values:", { fallbackName, fallbackRole });
+
+      // If profile doesn't exist or has missing/null name, create/update it
+      if (error || !data || !data.name || data.name === "Unknown") {
+        console.log(
+          "🔄 Creating/updating profile due to missing or invalid name"
+        );
+
+        const { data: createdProfile, error: createErr } =
+          await authHelpers.createProfile(
+            sessionUser.id,
+            sessionUser.email,
+            fallbackRole,
+            fallbackName
+          );
+
+        if (createErr) {
+          console.error("❌ Failed to auto-create/update profile:", createErr);
+          // Set profile with fallback values even if creation failed
+          setProfile({
+            id: sessionUser.id,
+            role: fallbackRole,
+            name: fallbackName,
+            email: sessionUser.email,
+          });
+        } else {
+          console.log(
+            "✅ Profile created/updated successfully:",
+            createdProfile
+          );
+          setProfile(createdProfile);
+        }
+      } else {
+        console.log("✅ Using existing profile:", data);
+        setProfile({
+          id: data.id,
+          role: data.role || fallbackRole,
+          name: data.name || fallbackName,
+          email: data.email || sessionUser.email,
+        });
+      }
+    } catch (err) {
+      console.error("❌ Error in handleProfileSetup:", err);
+      // Set basic profile as fallback
+      const metadata = sessionUser.user_metadata || {};
+      setProfile({
+        id: sessionUser.id,
+        role: metadata.role || "Buyer",
+        name: metadata.name || sessionUser.email?.split("@")[0] || "Unknown",
+        email: sessionUser.email,
+      });
+    }
+  };
+
   useEffect(() => {
     const initializeSession = async () => {
       try {
@@ -21,32 +92,7 @@ export const AuthProvider = ({ children }) => {
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          const { data, error } = await supabase
-            .from("profiles")
-            .select("id, role, name, email")
-            .eq("id", session.user.id)
-            .single();
-
-          const metadata = session.user.user_metadata || {};
-          const fallbackName =
-            metadata.name || session.user.email?.split("@")[0];
-          const fallbackRole = metadata.role || "Buyer";
-
-          if (error || !data) {
-            setProfile({
-              id: session.user.id,
-              role: fallbackRole,
-              name: fallbackName,
-              email: session.user.email,
-            });
-          } else {
-            setProfile({
-              id: data.id,
-              role: data.role || fallbackRole,
-              name: data.name || fallbackName,
-              email: data.email || session.user.email,
-            });
-          }
+          await handleProfileSetup(session.user);
         }
       } catch (error) {
         console.error("Error initializing session:", error.message);
@@ -60,48 +106,12 @@ export const AuthProvider = ({ children }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("🔄 Auth state changed:", event);
+
       setUser(session?.user ?? null);
+
       if (event === "SIGNED_IN" && session?.user) {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("id, role, name, email")
-          .eq("id", session.user.id)
-          .single();
-
-        const metadata = session.user.user_metadata || {};
-        const fallbackName = metadata.name || session.user.email?.split("@")[0];
-        const fallbackRole = metadata.role || "Buyer";
-        //create profile if user doesnt exist 
-        if (error || !data || !data.name) {
-          const { error: createErr } = await authHelpers.createProfile(
-            session.user.id,
-            session.user.email,
-            fallbackRole,
-            fallbackName
-          );
-
-          if (createErr) {
-            console.error(
-              "❌ Failed to auto-create missing profile:",
-              createErr
-            );
-          }
-
-          setProfile({
-            id: session.user.id,
-            role: fallbackRole,
-            name: fallbackName,
-            email: session.user.email,
-          });
-        } else {
-          setProfile({
-            id: data.id,
-            role: data.role || fallbackRole,
-            name: data.name || fallbackName,
-            email: data.email || session.user.email,
-          });
-        }
-
+        await handleProfileSetup(session.user);
         navigate("/dashboard");
       } else if (event === "SIGNED_OUT") {
         setProfile(null);

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-
 import {
   Factory,
   Mail,
@@ -75,9 +74,10 @@ const Signup = ({ onClose, onSuccess }) => {
 
   const validateForm = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
 
-    if (!formData.email || !formData.password) {
+    if (!formData.email || !formData.password || !formData.confirmPassword) {
       setMessage({ type: "error", text: "Please fill in all required fields" });
       return false;
     }
@@ -91,10 +91,12 @@ const Signup = ({ onClose, onSuccess }) => {
       setMessage({ type: "error", text: "Please enter your full name" });
       return false;
     }
+
     if (formData.password !== formData.confirmPassword) {
       setMessage({ type: "error", text: "Passwords do not match" });
       return false;
     }
+
     if (!passwordRegex.test(formData.password)) {
       setMessage({
         type: "error",
@@ -102,8 +104,12 @@ const Signup = ({ onClose, onSuccess }) => {
       });
       return false;
     }
+
     if (formData.role === "Admin") {
-      setMessage({ type: "error", text: "Admin role is restricted. Contact support." });
+      setMessage({
+        type: "error",
+        text: "Admin role is restricted. Contact support.",
+      });
       return false;
     }
 
@@ -114,22 +120,34 @@ const Signup = ({ onClose, onSuccess }) => {
     e.preventDefault();
     if (!validateForm()) return;
 
+    const trimmedName = formData.name.trim();
+    if (!trimmedName) {
+      setMessage({
+        type: "error",
+        text: "Name is required. Please provide a valid name.",
+      });
+      return;
+    }
+
     setLoading(true);
     setMessage({ type: "", text: "" });
 
     try {
+      console.log("📤 Submitting signup with name:", trimmedName); // Debug log
       const { data, error } = await signUp(
         formData.email,
         formData.password,
         formData.role,
-        formData.name.trim()
+        trimmedName
       );
       if (error) {
         if (error.message.includes("User already registered")) {
           throw new Error("An account with this email already exists");
         }
         if (error.message.includes("Password should be at least")) {
-          throw new Error("Password is too weak. Please use a stronger password.");
+          throw new Error(
+            "Password is too weak. Please use a stronger password."
+          );
         }
         throw error;
       }
@@ -144,6 +162,7 @@ const Signup = ({ onClose, onSuccess }) => {
         confirmPassword: "",
         role: "Buyer",
       });
+      onSuccess?.();
       setTimeout(() => {
         navigate("/login");
       }, 3000);
@@ -176,8 +195,10 @@ const Signup = ({ onClose, onSuccess }) => {
   const getColorClasses = (color) => {
     const colors = {
       blue: "border-blue-400/50 bg-blue-900/30 text-blue-400 shadow-blue-400/20",
-      green: "border-green-400/50 bg-green-900/30 text-green-400 shadow-green-400/20",
-      purple: "border-purple-400/50 bg-purple-900/30 text-purple-400 shadow-purple-400/20",
+      green:
+        "border-green-400/50 bg-green-900/30 text-green-400 shadow-green-400/20",
+      purple:
+        "border-purple-400/50 bg-purple-900/30 text-purple-400 shadow-purple-400/20",
     };
     return colors[color] || colors.blue;
   };
@@ -188,7 +209,9 @@ const Signup = ({ onClose, onSuccess }) => {
         {[...Array(8)].map((_, i) => (
           <div
             key={i}
-            className={`absolute w-2 h-2 bg-green-400/60 rounded-full animate-float-${i % 3 + 1} shadow-md shadow-green-400/30`}
+            className={`absolute w-2 h-2 bg-green-400/60 rounded-full animate-float-${
+              (i % 3) + 1
+            } shadow-md shadow-green-400/30`}
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -205,15 +228,12 @@ const Signup = ({ onClose, onSuccess }) => {
             <CardItem translateZ={60}>
               <button
                 onClick={() => navigate("/login")}
-                className="absolute top-6 left-6 flex items-center space-x-2 text-green-400 hover:text-green-300 transition-all duration-300 group"
+                className="absolute top-6 left-6 max-sm:left-0 flex items-center space-x-2 text-green-400 hover:text-green-300 transition-all duration-300 group"
                 aria-label="Back to Login"
               >
                 <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300" />
-                <span className="text-sm font-medium">Login</span>
               </button>
             </CardItem>
-
-           
 
             <div className="flex flex-col items-center pt-2">
               <div className="flex items-center justify-center space-x-3 mb-4 group">
@@ -255,7 +275,10 @@ const Signup = ({ onClose, onSuccess }) => {
               </CardItem>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-sm flex flex-col items-center">
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-6 w-full max-w-sm flex flex-col items-center"
+            >
               <CardItem translateZ={60} className="space-y-3 w-full">
                 <label className="block text-sm font-medium text-green-300/70 text-center">
                   I am a
@@ -267,7 +290,9 @@ const Signup = ({ onClose, onSuccess }) => {
                       <button
                         key={role.value}
                         type="button"
-                        onClick={() => setFormData({ ...formData, role: role.value })}
+                        onClick={() =>
+                          setFormData({ ...formData, role: role.value })
+                        }
                         className={`p-4 rounded-xl border transition-all text-left group relative w-full transform hover:scale-105 duration-300 ${
                           formData.role === role.value
                             ? getColorClasses(role.color)
@@ -279,7 +304,9 @@ const Signup = ({ onClose, onSuccess }) => {
                         <div className="flex items-center space-x-3 relative z-10">
                           <Icon className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
                           <div>
-                            <div className="font-semibold text-base">{role.label}</div>
+                            <div className="font-semibold text-base">
+                              {role.label}
+                            </div>
                             <div className="text-xs text-green-300/60">
                               {role.description}
                             </div>
@@ -292,7 +319,10 @@ const Signup = ({ onClose, onSuccess }) => {
               </CardItem>
 
               <CardItem translateZ={60} className="space-y-2 w-full">
-                <label htmlFor="name" className="block text-sm font-medium text-green-300/70 text-center">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-green-300/70 text-center"
+                >
                   Full Name
                 </label>
                 <div className="relative w-full">
@@ -313,7 +343,10 @@ const Signup = ({ onClose, onSuccess }) => {
               </CardItem>
 
               <CardItem translateZ={60} className="space-y-2 w-full">
-                <label htmlFor="email" className="block text-sm font-medium text-green-300/70 text-center">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-green-300/70 text-center"
+                >
                   Email Address
                 </label>
                 <div className="relative w-full">
@@ -334,7 +367,10 @@ const Signup = ({ onClose, onSuccess }) => {
               </CardItem>
 
               <CardItem translateZ={60} className="space-y-2 w-full">
-                <label htmlFor="password" className="block text-sm font-medium text-green-300/70 text-center">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-green-300/70 text-center"
+                >
                   Password
                 </label>
                 <div className="relative w-full">
@@ -354,15 +390,24 @@ const Signup = ({ onClose, onSuccess }) => {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-green-400/50 hover:text-green-400 focus:outline-none focus:ring-2 focus:ring-green-400 rounded"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
                   </button>
                 </div>
               </CardItem>
 
               <CardItem translateZ={60} className="space-y-2 w-full">
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-green-300/70 text-center">
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-green-300/70 text-center"
+                >
                   Confirm Password
                 </label>
                 <div className="relative w-full">
@@ -382,9 +427,17 @@ const Signup = ({ onClose, onSuccess }) => {
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-green-400/50 hover:text-green-400 focus:outline-none focus:ring-2 focus:ring-green-400 rounded"
-                    aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                    aria-label={
+                      showConfirmPassword
+                        ? "Hide confirm password"
+                        : "Show confirm password"
+                    }
                   >
-                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
                   </button>
                 </div>
               </CardItem>
@@ -419,11 +472,17 @@ const Signup = ({ onClose, onSuccess }) => {
               <CardItem translateZ={30} className="mt-4 text-center w-full">
                 <p className="text-xs text-green-300/60 leading-relaxed">
                   By creating an account, you agree to our{" "}
-                  <a href="/terms" className="text-green-400 hover:text-green-300 transition-colors duration-300 focus:outline-none focus:underline">
+                  <a
+                    href="/terms"
+                    className="text-green-400 hover:text-green-300 transition-colors duration-300 focus:outline-none focus:underline"
+                  >
                     Terms of Service
                   </a>{" "}
                   and{" "}
-                  <a href="/privacy" className="text-green-400 hover:text-green-300 transition-colors duration-300 focus:outline-none focus:underline">
+                  <a
+                    href="/privacy"
+                    className="text-green-400 hover:text-green-300 transition-colors duration-300 focus:outline-none focus:underline"
+                  >
                     Privacy Policy
                   </a>
                 </p>
@@ -435,20 +494,48 @@ const Signup = ({ onClose, onSuccess }) => {
 
       <style jsx>{`
         @keyframes float-1 {
-          0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.4; }
-          50% { transform: translateY(-15px) translateX(8px) rotate(90deg); opacity: 0.7; }
+          0%,
+          100% {
+            transform: translateY(0px) rotate(0deg);
+            opacity: 0.4;
+          }
+          50% {
+            transform: translateY(-15px) translateX(8px) rotate(90deg);
+            opacity: 0.7;
+          }
         }
         @keyframes float-2 {
-          0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
-          50% { transform: translateY(-12px) rotate(-90deg); opacity: 0.6; }
+          0%,
+          100% {
+            transform: translateY(0px) rotate(0deg);
+            opacity: 0.3;
+          }
+          50% {
+            transform: translateY(-12px) rotate(-90deg);
+            opacity: 0.6;
+          }
         }
         @keyframes float-3 {
-          0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.5; }
-          50% { transform: translateY(-18px) translateX(10px) rotate(180deg); opacity: 0.8; }
+          0%,
+          100% {
+            transform: translateY(0px) rotate(0deg);
+            opacity: 0.5;
+          }
+          50% {
+            transform: translateY(-18px) translateX(10px) rotate(180deg);
+            opacity: 0.8;
+          }
         }
         @keyframes sparkle-auth {
-          0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
-          50% { transform: scale(1.5) rotate(360deg); opacity: 1; }
+          0%,
+          100% {
+            transform: scale(0) rotate(0deg);
+            opacity: 0;
+          }
+          50% {
+            transform: scale(1.5) rotate(360deg);
+            opacity: 1;
+          }
         }
 
         .custom-scrollbar::-webkit-scrollbar {
@@ -465,11 +552,21 @@ const Signup = ({ onClose, onSuccess }) => {
           background: #10b981a0;
         }
 
-        .animate-float-1 { animation: float-1 6s ease-in-out infinite; }
-        .animate-float-2 { animation: float-2 7s ease-in-out infinite; }
-        .animate-float-3 { animation: float-3 5s ease-in-out infinite; }
-        .animate-sparkle-auth { animation: sparkle-auth 1.2s ease-in-out infinite; }
-        .delay-200 { animation-delay: 0.2s; }
+        .animate-float-1 {
+          animation: float-1 6s ease-in-out infinite;
+        }
+        .animate-float-2 {
+          animation: float-2 7s ease-in-out infinite;
+        }
+        .animate-float-3 {
+          animation: float-3 5s ease-in-out infinite;
+        }
+        .animate-sparkle-auth {
+          animation: sparkle-auth 1.2s ease-in-out infinite;
+        }
+        .delay-200 {
+          animation-delay: 0.2s;
+        }
       `}</style>
     </div>
   );

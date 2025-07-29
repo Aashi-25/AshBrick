@@ -10,18 +10,25 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export const authHelpers = {
-  // Sign up new user
   async signUp(email, password, role, name) {
     try {
       console.log("📧 Signing up:", { email, role, name });
 
       // Validate role
-      if (!['Buyer', 'Supplier'].includes(role)) {
-        return { 
-          data: null, 
-          error: new Error("Invalid role. Only 'Buyer' and 'Supplier' are allowed for signup.") 
+      if (!["Buyer", "Supplier"].includes(role)) {
+        return {
+          data: null,
+          error: new Error(
+            "Invalid role. Only 'Buyer' and 'Supplier' are allowed for signup."
+          ),
         };
       }
+
+      // Ensure name is non-empty for user_metadata
+      const trimmedName = name?.trim();
+      const finalName = trimmedName || "Unknown";
+
+      console.log("🔍 Final name being used:", finalName);
 
       // Sign up with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -30,7 +37,7 @@ export const authHelpers = {
         options: {
           data: {
             role,
-            name: name?.trim(),
+            name: finalName,
           },
         },
       });
@@ -53,12 +60,12 @@ export const authHelpers = {
         };
       }
 
-      // Create profile after successful signup
-      const { error: profileError } = await this.createProfile(
+      // Create or update profile after successful signup
+      const { error: profileError } = await authHelpers.createProfile(
         user.id,
         email,
         role,
-        name
+        finalName
       );
 
       if (profileError) {
@@ -74,7 +81,50 @@ export const authHelpers = {
     }
   },
 
+  // Create or update user profile (SINGLE METHOD)
+  async createProfile(userId, email, role, name) {
+    try {
+      const trimmedName = name?.trim();
+      const finalName = trimmedName || "Unknown";
+      
+      console.log("📝 Creating profile with data:", {
+        userId,
+        email,
+        role,
+        name: finalName
+      });
 
+      const profileData = {
+        id: userId,
+        email,
+        role,
+        name: finalName,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      // Use upsert to handle both create and update cases
+      const { data, error } = await supabase
+        .from("profiles")
+        .upsert(profileData, {
+          onConflict: "id",
+          ignoreDuplicates: false
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error("❌ Profile upsert error:", error);
+        return { data: null, error };
+      }
+
+      console.log("✅ Profile created/updated successfully:", data);
+      return { data, error: null };
+    } catch (err) {
+      console.error("❌ Unexpected profile creation error:", err);
+      return { data: null, error: err };
+    }
+  },
 
   // Sign in
   async signIn(email, password) {
@@ -143,37 +193,6 @@ export const authHelpers = {
     }
   },
 
-  // Create user profile
-  async createProfile(userId, email, role, name) {
-    try {
-      console.log("📝 Creating profile:", { userId, email, role, name });
-
-      const { data, error } = await supabase
-        .from("profiles")
-        .insert({
-          id: userId,
-          email,
-          role,
-          name: name?.trim(),
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error("❌ Profile creation error:", error);
-        return { data: null, error };
-      }
-
-      console.log("✅ Profile created:", data);
-      return { data, error: null };
-    } catch (err) {
-      console.error("❌ Unexpected profile creation error:", err);
-      return { data: null, error: err };
-    }
-  },
-
   // Update user profile
   async updateProfile(userId, updates) {
     try {
@@ -211,7 +230,7 @@ export const authHelpers = {
         .eq("email", email)
         .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error && error.code !== "PGRST116") {
         return { exists: null, error };
       }
 
@@ -225,7 +244,10 @@ export const authHelpers = {
   // Get current session
   async getSession() {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
       return { session, error };
     } catch (err) {
       console.error("❌ Get session error:", err);

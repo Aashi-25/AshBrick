@@ -372,7 +372,7 @@ const SupplierDashboard = () => {
               <Factory className="w-5 h-5 text-black" />
             </div>
             <div>
-              <p className="font-medium text-green-300">{user?.email}</p>
+              <p className="font-medium text-green-300">{profile?.name}</p>
               <p className="text-sm text-green-300/70">{profile?.role}</p>
             </div>
           </div>
@@ -405,7 +405,12 @@ const SupplierDashboard = () => {
               {activeTab.replace("-", " ")}
             </h1>
             <p className="text-green-300/70">
-              Welcome back, {profile?.name ?? user?.email?.split("@")[0]}!
+              Welcome back,{" "}
+              {user?.user_metadata?.name ||
+                profile?.name ||
+                user?.email?.split("@")[0] ||
+                "User"}
+              !{" "}
             </p>
           </div>
           {renderContent()}

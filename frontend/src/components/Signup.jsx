@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -15,6 +16,7 @@ import {
   Sparkles,
   ArrowLeft,
   User,
+  Send,
 } from "lucide-react";
 import { CardBody, CardContainer, CardItem } from "./3d-card";
 
@@ -23,6 +25,8 @@ const Signup = ({ onClose, onSuccess }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [showVerificationPopup, setShowVerificationPopup] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -31,7 +35,7 @@ const Signup = ({ onClose, onSuccess }) => {
     role: "Buyer",
   });
 
-  const { signUp } = useAuth();
+  const { signUp, supabase } = useAuth();
   const navigate = useNavigate();
 
   const roles = [
@@ -66,6 +70,26 @@ const Signup = ({ onClose, onSuccess }) => {
       return () => clearTimeout(timer);
     }
   }, [message]);
+
+  useEffect(() => {
+    let verificationInterval;
+    if (showVerificationPopup) {
+      verificationInterval = setInterval(async () => {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error) {
+          console.error("❌ Error checking verification status:", error.message);
+          return;
+        }
+        if (user?.email_confirmed_at) {
+          console.log("✅ Email verified for user:", user.id);
+          setShowVerificationPopup(false);
+          onSuccess?.();
+          navigate("/dashboard");
+        }
+      }, 3000); // Poll every 3 seconds
+    }
+    return () => clearInterval(verificationInterval);
+  }, [showVerificationPopup, supabase, navigate, onSuccess]);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -133,7 +157,7 @@ const Signup = ({ onClose, onSuccess }) => {
     setMessage({ type: "", text: "" });
 
     try {
-      console.log("📤 Submitting signup with name:", trimmedName); // Debug log
+      console.log("📤 Submitting signup with name:", trimmedName);
       const { data, error } = await signUp(
         formData.email,
         formData.password,
@@ -151,10 +175,7 @@ const Signup = ({ onClose, onSuccess }) => {
         }
         throw error;
       }
-      setMessage({
-        type: "success",
-        text: "Account created! Please check your email to verify your account.",
-      });
+
       setFormData({
         name: "",
         email: "",
@@ -162,10 +183,7 @@ const Signup = ({ onClose, onSuccess }) => {
         confirmPassword: "",
         role: "Buyer",
       });
-      onSuccess?.();
-      setTimeout(() => {
-        navigate("/login");
-      }, 3000);
+      setShowVerificationPopup(true);
     } catch (error) {
       setMessage({
         type: "error",
@@ -173,6 +191,34 @@ const Signup = ({ onClose, onSuccess }) => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setResendLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: formData.email,
+      });
+      if (error) {
+        setMessage({
+          type: "error",
+          text: "Failed to resend verification email: " + error.message,
+        });
+      } else {
+        setMessage({
+          type: "success",
+          text: "Verification email resent successfully!",
+        });
+      }
+    } catch (error) {
+      setMessage({
+        type: "error",
+        text: "An error occurred while resending the email.",
+      });
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -188,6 +234,7 @@ const Signup = ({ onClose, onSuccess }) => {
     setShowPassword(false);
     setShowConfirmPassword(false);
     setLoading(false);
+    setShowVerificationPopup(false);
     onClose?.();
     navigate("/");
   };
@@ -222,275 +269,339 @@ const Signup = ({ onClose, onSuccess }) => {
         ))}
       </div>
 
-      <CardContainer className="inter-var w-full max-w-md relative">
-        <CardBody className="bg-black/95 text-white rounded-2xl shadow-2xl shadow-green-400/20 w-full h-auto p-8 relative overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar group/card border border-green-400/30 hover:shadow-green-400/30 transition-all duration-500">
-          <div className="sticky top-0 z-30 bg-black/95 border-b border-green-400/30 -mx-8 px-8 pt-6 pb-4 backdrop-blur-lg">
-            <CardItem translateZ={60}>
-              <button
-                onClick={() => navigate("/login")}
-                className="absolute top-6 left-6 max-sm:left-0 flex items-center space-x-2 text-green-400 hover:text-green-300 transition-all duration-300 group"
-                aria-label="Back to Login"
-              >
-                <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300" />
-              </button>
-            </CardItem>
-
-            <div className="flex flex-col items-center pt-2">
-              <div className="flex items-center justify-center space-x-3 mb-4 group">
-                <div className="relative">
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-all duration-500 shadow-lg shadow-green-400/30">
-                    <Factory className="w-6 h-6 text-black" />
-                  </div>
-                  <div className="absolute inset-0 w-12 h-12 bg-green-400 opacity-0 group-hover:opacity-40 blur-xl transition-all duration-500 rounded-xl" />
-                </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-                  AshBrick
-                </span>
-              </div>
-              <h2 className="text-xl font-semibold text-center text-green-400">
-                Join AshBrick
-              </h2>
-              <p className="text-green-300/70 text-center text-sm mt-1">
-                Create your account to get started
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center px-4 py-6">
-            {message.text && (
-              <CardItem
-                translateZ={70}
-                className={`mb-6 p-4 rounded-lg flex items-center space-x-3 w-full max-w-sm ${
-                  message.type === "error"
-                    ? "bg-red-900/30 text-red-400 border border-red-400/30 shadow-red-400/20"
-                    : "bg-green-900/30 text-green-400 border border-green-400/30 shadow-green-400/20"
-                }`}
-              >
-                {message.type === "error" ? (
-                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                ) : (
-                  <CheckCircle className="w-5 h-5 flex-shrink-0" />
-                )}
-                <span className="text-sm">{message.text}</span>
+      {showVerificationPopup ? (
+        <CardContainer className="inter-var w-full max-w-md relative">
+          <CardBody className="bg-black/95 text-white rounded-2xl shadow-2xl shadow-green-400/20 w-full h-auto p-8 relative overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar group/card border border-green-400/30 hover:shadow-green-400/30 transition-all duration-500">
+            <div className="flex flex-col items-center space-y-6">
+              <CardItem translateZ={70}>
+                <CheckCircle className="w-16 h-16 text-green-400 mb-4 animate-pulse" />
               </CardItem>
-            )}
-
-            <form
-              onSubmit={handleSubmit}
-              className="space-y-6 w-full max-w-sm flex flex-col items-center"
-            >
-              <CardItem translateZ={60} className="space-y-3 w-full">
-                <label className="block text-sm font-medium text-green-300/70 text-center">
-                  I am a
-                </label>
-                <div className="grid grid-cols-1 gap-4 w-full max-w-xs mx-auto">
-                  {roles.map((role) => {
-                    const Icon = role.icon;
-                    return (
-                      <button
-                        key={role.value}
-                        type="button"
-                        onClick={() =>
-                          setFormData({ ...formData, role: role.value })
-                        }
-                        className={`p-4 rounded-xl border transition-all text-left group relative w-full transform hover:scale-105 duration-300 ${
-                          formData.role === role.value
-                            ? getColorClasses(role.color)
-                            : "border-green-400/20 bg-black/60 text-green-300/70 hover:border-green-400/40 hover:bg-green-400/20"
-                        }`}
-                        aria-label={`Select ${role.label} role`}
-                      >
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-green-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
-                        <div className="flex items-center space-x-3 relative z-10">
-                          <Icon className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
-                          <div>
-                            <div className="font-semibold text-base">
-                              {role.label}
-                            </div>
-                            <div className="text-xs text-green-300/60">
-                              {role.description}
-                            </div>
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+              <CardItem translateZ={60} className="text-center">
+                <h2 className="text-2xl font-bold text-green-400 mb-2">
+                  Account Created Successfully!
+                </h2>
+                <p className="text-green-300/70 text-sm">
+                  Please check your email ({formData.email}) to verify your account.
+                </p>
               </CardItem>
-
-              <CardItem translateZ={60} className="space-y-2 w-full">
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-green-300/70 text-center"
-                >
-                  Full Name
-                </label>
-                <div className="relative w-full">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-400/50" />
-                  <input
-                    id="name"
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 bg-black/70 border border-green-400/30 text-white placeholder-green-300/50 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-green-400/50 hover:bg-green-400/20 transition-all duration-300 outline-none"
-                    placeholder="Enter your full name"
-                    required
-                    aria-required="true"
-                    autoComplete="name"
-                  />
-                </div>
-              </CardItem>
-
-              <CardItem translateZ={60} className="space-y-2 w-full">
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-green-300/70 text-center"
-                >
-                  Email Address
-                </label>
-                <div className="relative w-full">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-400/50" />
-                  <input
-                    id="email"
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 bg-black/70 border border-green-400/30 text-white placeholder-green-300/50 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-green-400/50 hover:bg-green-400/20 transition-all duration-300 outline-none"
-                    placeholder="Enter your email"
-                    required
-                    aria-required="true"
-                    autoComplete="email"
-                  />
-                </div>
-              </CardItem>
-
-              <CardItem translateZ={60} className="space-y-2 w-full">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-green-300/70 text-center"
-                >
-                  Password
-                </label>
-                <div className="relative w-full">
-                  <input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    className="w-full pl-4 pr-12 py-3 bg-black/70 border border-green-400/30 text-white placeholder-green-300/50 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-green-400/50 hover:bg-green-400/20 transition-all duration-300 outline-none"
-                    placeholder="Enter your password"
-                    required
-                    aria-required="true"
-                    autoComplete="new-password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-green-400/50 hover:text-green-400 focus:outline-none focus:ring-2 focus:ring-green-400 rounded"
-                    aria-label={
-                      showPassword ? "Hide password" : "Show password"
-                    }
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-5 h-5" />
-                    ) : (
-                      <Eye className="w-5 h-5" />
-                    )}
-                  </button>
-                </div>
-              </CardItem>
-
-              <CardItem translateZ={60} className="space-y-2 w-full">
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-green-300/70 text-center"
-                >
-                  Confirm Password
-                </label>
-                <div className="relative w-full">
-                  <input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange}
-                    className="w-full pl-4 pr-12 py-3 bg-black/70 border border-green-400/30 text-white placeholder-green-300/50 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-green-400/50 hover:bg-green-400/20 transition-all duration-300 outline-none"
-                    placeholder="Confirm your password"
-                    required
-                    aria-required="true"
-                    autoComplete="new-password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-green-400/50 hover:text-green-400 focus:outline-none focus:ring-2 focus:ring-green-400 rounded"
-                    aria-label={
-                      showConfirmPassword
-                        ? "Hide confirm password"
-                        : "Show confirm password"
-                    }
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="w-5 h-5" />
-                    ) : (
-                      <Eye className="w-5 h-5" />
-                    )}
-                  </button>
-                </div>
-              </CardItem>
-
-              <CardItem translateZ={90} className="w-full">
+              <CardItem translateZ={60} className="w-full max-w-xs">
                 <button
-                  type="submit"
-                  disabled={loading}
+                  onClick={handleResendVerification}
+                  disabled={resendLoading}
                   className="w-full bg-gradient-to-r from-green-400 to-emerald-500 text-black py-3 rounded-xl font-semibold transition-all duration-300 group relative overflow-hidden shadow-lg shadow-green-400/30 hover:shadow-green-400/50 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 focus:outline-none focus:ring-2 focus:ring-green-400"
-                  aria-label="Create Account"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-green-300 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <Sparkles className="w-4 h-4 text-black animate-sparkle-auth" />
-                  </div>
-                  <div className="absolute bottom-1 left-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <Sparkles className="w-4 h-4 text-black animate-sparkle-auth delay-200" />
-                  </div>
                   <span className="relative z-10 flex items-center justify-center space-x-2">
-                    {loading ? (
+                    {resendLoading ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
                       <>
-                        <span>Create Account</span>
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                        <Send className="w-5 h-5" />
+                        <span>Resend Verification Email</span>
                       </>
                     )}
                   </span>
                 </button>
               </CardItem>
-
-              <CardItem translateZ={30} className="mt-4 text-center w-full">
-                <p className="text-xs text-green-300/60 leading-relaxed">
-                  By creating an account, you agree to our{" "}
-                  <a
-                    href="/terms"
-                    className="text-green-400 hover:text-green-300 transition-colors duration-300 focus:outline-none focus:underline"
-                  >
-                    Terms of Service
-                  </a>{" "}
-                  and{" "}
-                  <a
-                    href="/privacy"
-                    className="text-green-400 hover:text-green-300 transition-colors duration-300 focus:outline-none focus:underline"
-                  >
-                    Privacy Policy
-                  </a>
-                </p>
+              <CardItem translateZ={60} className="w-full max-w-xs">
+                <button
+                  onClick={handleClose}
+                  className="w-full text-green-400 hover:text-green-300 transition-colors duration-300 text-sm"
+                >
+                  Close
+                </button>
               </CardItem>
-            </form>
-          </div>
-        </CardBody>
-      </CardContainer>
+              {message.text && (
+                <CardItem
+                  translateZ={70}
+                  className={`p-4 rounded-lg flex items-center space-x-3 w-full max-w-sm ${
+                    message.type === "error"
+                      ? "bg-red-900/30 text-red-400 border border-red-400/30 shadow-red-400/20"
+                      : "bg-green-900/30 text-green-400 border border-green-400/30 shadow-green-400/20"
+                  }`}
+                >
+                  {message.type === "error" ? (
+                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                  ) : (
+                    <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                  )}
+                  <span className="text-sm">{message.text}</span>
+                </CardItem>
+              )}
+            </div>
+          </CardBody>
+        </CardContainer>
+      ) : (
+        <CardContainer className="inter-var w-full max-w-md relative">
+          <CardBody className="bg-black/95 text-white rounded-2xl shadow-2xl shadow-green-400/20 w-full h-auto p-8 relative overflow-hidden max-h-[90vh] overflow-y-auto custom-scrollbar group/card border border-green-400/30 hover:shadow-green-400/30 transition-all duration-500">
+            <div className="sticky top-0 z-30 bg-black/95 border-b border-green-400/30 -mx-8 px-8 pt-6 pb-4 backdrop-blur-lg">
+              <CardItem translateZ={60}>
+                <button
+                  onClick={() => navigate("/login")}
+                  className="absolute top-6 left-6 max-sm:left-0 flex items-center space-x-2 text-green-400 hover:text-green-300 transition-all duration-300 group"
+                  aria-label="Back to Login"
+                >
+                  <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300" />
+                </button>
+              </CardItem>
+
+              <div className="flex flex-col items-center pt-2">
+                <div className="flex items-center justify-center space-x-3 mb-4 group">
+                  <div className="relative">
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-all duration-500 shadow-lg shadow-green-400/30">
+                      <Factory className="w-6 h-6 text-black" />
+                    </div>
+                    <div className="absolute inset-0 w-12 h-12 bg-green-400 opacity-0 group-hover:opacity-40 blur-xl transition-all duration-500 rounded-xl" />
+                  </div>
+                  <span className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                    AshBrick
+                  </span>
+                </div>
+                <h2 className="text-xl font-semibold text-center text-green-400">
+                  Join AshBrick
+                </h2>
+                <p className="text-green-300/70 text-center text-sm mt-1">
+                  Create your account to get started
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center px-4 py-6">
+              {message.text && (
+                <CardItem
+                  translateZ={70}
+                  className={`mb-6 p-4 rounded-lg flex items-center space-x-3 w-full max-w-sm ${
+                    message.type === "error"
+                      ? "bg-red-900/30 text-red-400 border border-red-400/30 shadow-red-400/20"
+                      : "bg-green-900/30 text-green-400 border border-green-400/30 shadow-green-400/20"
+                  }`}
+                >
+                  {message.type === "error" ? (
+                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                  ) : (
+                    <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                  )}
+                  <span className="text-sm">{message.text}</span>
+                </CardItem>
+              )}
+
+              <form
+                onSubmit={handleSubmit}
+                className="space-y-6 w-full max-w-sm flex flex-col items-center"
+              >
+                <CardItem translateZ={60} className="space-y-3 w-full">
+                  <label className="block text-sm font-medium text-green-300/70 text-center">
+                    I am a
+                  </label>
+                  <div className="grid grid-cols-1 gap-4 w-full max-w-xs mx-auto">
+                    {roles.map((role) => {
+                      const Icon = role.icon;
+                      return (
+                        <button
+                          key={role.value}
+                          type="button"
+                          onClick={() =>
+                            setFormData({ ...formData, role: role.value })
+                          }
+                          className={`p-4 rounded-xl border transition-all text-left group relative w-full transform hover:scale-105 duration-300 ${
+                            formData.role === role.value
+                              ? getColorClasses(role.color)
+                              : "border-green-400/20 bg-black/60 text-green-300/70 hover:border-green-400/40 hover:bg-green-400/20"
+                          }`}
+                          aria-label={`Select ${role.label} role`}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-green-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
+                          <div className="flex items-center space-x-3 relative z-10">
+                            <Icon className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
+                            <div>
+                              <div className="font-semibold text-base">
+                                {role.label}
+                              </div>
+                              <div className="text-xs text-green-300/60">
+                                {role.description}
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </CardItem>
+
+                <CardItem translateZ={60} className="space-y-2 w-full">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-green-300/70 text-center"
+                  >
+                    Full Name
+                  </label>
+                  <div className="relative w-full">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-400/50" />
+                    <input
+                      id="name"
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="w-full pl-10 pr-4 py-3 bg-black/70 border border-green-400/30 text-white placeholder-green-300/50 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-green-400/50 hover:bg-green-400/20 transition-all duration-300 outline-none"
+                      placeholder="Enter your full name"
+                      required
+                      aria-required="true"
+                      autoComplete="name"
+                    />
+                  </div>
+                </CardItem>
+
+                <CardItem translateZ={60} className="space-y-2 w-full">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-green-300/70 text-center"
+                  >
+                    Email Address
+                  </label>
+                  <div className="relative w-full">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-400/50" />
+                    <input
+                      id="email"
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="w-full pl-10 pr-4 py-3 bg-black/70 border border-green-400/30 text-white placeholder-green-300/50 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-green-400/50 hover:bg-green-400/20 transition-all duration-300 outline-none"
+                      placeholder="Enter your email"
+                      required
+                      aria-required="true"
+                      autoComplete="email"
+                    />
+                  </div>
+                </CardItem>
+
+                <CardItem translateZ={60} className="space-y-2 w-full">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-green-300/70 text-center"
+                  >
+                    Password
+                  </label>
+                  <div className="relative w-full">
+                    <input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      className="w-full pl-4 pr-12 py-3 bg-black/70 border border-green-400/30 text-white placeholder-green-300/50 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-green-400/50 hover:bg-green-400/20 transition-all duration-300 outline-none"
+                      placeholder="Enter your password"
+                      required
+                      aria-required="true"
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-green-400/50 hover:text-green-400 focus:outline-none focus:ring-2 focus:ring-green-400 rounded"
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+                </CardItem>
+
+                <CardItem translateZ={60} className="space-y-2 w-full">
+                  <label
+                    htmlFor="confirmPassword"
+                    className="block text-sm font-medium text-green-300/70 text-center"
+                  >
+                    Confirm Password
+                  </label>
+                  <div className="relative w-full">
+                    <input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      className="w-full pl-4 pr-12 py-3 bg-black/70 border border-green-400/30 text-white placeholder-green-300/50 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-green-400/50 hover:bg-green-400/20 transition-all duration-300 outline-none"
+                      placeholder="Confirm your password"
+                      required
+                      aria-required="true"
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-green-400/50 hover:text-green-400 focus:outline-none focus:ring-2 focus:ring-green-400 rounded"
+                      aria-label={
+                        showConfirmPassword
+                          ? "Hide confirm password"
+                          : "Show confirm password"
+                      }
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+                </CardItem>
+
+                <CardItem translateZ={90} className="w-full">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-gradient-to-r from-green-400 to-emerald-500 text-black py-3 rounded-xl font-semibold transition-all duration-300 group relative overflow-hidden shadow-lg shadow-green-400/30 hover:shadow-green-400/50 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 focus:outline-none focus:ring-2 focus:ring-green-400"
+                    aria-label="Create Account"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-green-300 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                      <Sparkles className="w-4 h-4 text-black animate-sparkle-auth" />
+                    </div>
+                    <div className="absolute bottom-1 left-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                      <Sparkles className="w-4 h-4 text-black animate-sparkle-auth delay-200" />
+                    </div>
+                    <span className="relative z-10 flex items-center justify-center space-x-2">
+                      {loading ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <>
+                          <span>Create Account</span>
+                          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                        </>
+                      )}
+                    </span>
+                  </button>
+                </CardItem>
+
+                <CardItem translateZ={30} className="mt-4 text-center w-full">
+                  <p className="text-xs text-green-300/60 leading-relaxed">
+                    By creating an account, you agree to our{" "}
+                    <a
+                      href="/terms"
+                      className="text-green-400 hover:text-green-300 transition-colors duration-300 focus:outline-none focus:underline"
+                    >
+                      Terms of Service
+                    </a>{" "}
+                    and{" "}
+                    <a
+                      href="/privacy"
+                      className="text-green-400 hover:text-green-300 transition-colors duration-300 focus:outline-none focus:underline"
+                    >
+                      Privacy Policy
+                    </a>
+                  </p>
+                </CardItem>
+              </form>
+            </div>
+          </CardBody>
+        </CardContainer>
+      )}
 
       <style jsx>{`
         @keyframes float-1 {
@@ -566,6 +677,18 @@ const Signup = ({ onClose, onSuccess }) => {
         }
         .delay-200 {
           animation-delay: 0.2s;
+        }
+
+        .animate-pulse {
+          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
+          }
         }
       `}</style>
     </div>

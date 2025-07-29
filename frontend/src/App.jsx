@@ -11,12 +11,12 @@ import AIFeatures from "./components/AIFeatures";
 import Impact from "./components/Impact";
 import CTA from "./components/CTA";
 import Footer from "./components/Footer";
-import AuthPage from "./components/AuthPage";
+import LoginPage from "./components/LoginPage";
+import Signup from "./components/Signup";
 import { useState, useEffect } from "react";
 import ResetPassword from "./components/ResetPassword";
 import TeamCarousel from "./components/TeamCarousel";
 import AnimatedBackdrop from "./components/AnimatedBackdrop";
-
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, profile, loading } = useAuth();
@@ -26,9 +26,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (loading) {
-        console.error(
-          "Loading timeout reached in ProtectedRoute, redirecting to home"
-        );
+        console.error("Loading timeout reached in ProtectedRoute, redirecting to home");
         setTimeoutReached(true);
         navigate("/");
       }
@@ -40,14 +38,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   if (loading && !timeoutReached) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-green-900/20 to-black relative overflow-hidden">
-        {/* Background Effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
           {[...Array(8)].map((_, i) => (
             <div
               key={i}
-              className={`absolute w-2 h-2 bg-green-400/60 rounded-full animate-float-${
-                (i % 3) + 1
-              } shadow-md shadow-green-400/30`}
+              className={`absolute w-2 h-2 bg-green-400/60 rounded-full animate-float-${(i % 3) + 1} shadow-md shadow-green-400/30`}
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
@@ -64,90 +59,47 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
           </div>
           <p className="text-green-300/70 text-lg font-medium">Loading...</p>
         </div>
-
         <style jsx>{`
           @keyframes float-1 {
-            0%,
-            100% {
-              transform: translateY(0px) translateX(0px) rotate(0deg);
-              opacity: 0.4;
-            }
-            50% {
-              transform: translateY(-15px) translateX(8px) rotate(90deg);
-              opacity: 0.7;
-            }
+            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.4; }
+            50% { transform: translateY(-15px) translateX(8px) rotate(90deg); opacity: 0.7; }
           }
           @keyframes float-2 {
-            0%,
-            100% {
-              transform: translateY(0px) translateX(0px) rotate(0deg);
-              opacity: 0.3;
-            }
-            50% {
-              transform: translateY(-12px) translateX(-6px) rotate(-90deg);
-              opacity: 0.6;
-            }
+            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-12px) translateX(-6px) rotate(-90deg); opacity: 0.6; }
           }
           @keyframes float-3 {
-            0%,
-            100% {
-              transform: translateY(0px) translateX(0px) rotate(0deg);
-              opacity: 0.5;
-            }
-            50% {
-              transform: translateY(-18px) translateX(10px) rotate(180deg);
-              opacity: 0.8;
-            }
+            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.5; }
+            50% { transform: translateY(-18px) translateX(10px) rotate(180deg); opacity: 0.8; }
           }
           @keyframes pulse-ring {
-            0% {
-              transform: scale(0.8);
-              opacity: 0.5;
-            }
-            50% {
-              transform: scale(1.2);
-              opacity: 0.2;
-            }
-            100% {
-              transform: scale(1.6);
-              opacity: 0;
-            }
+            0% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.2; }
+            100% { transform: scale(1.6); opacity: 0; }
           }
-          .animate-float-1 {
-            animation: float-1 6s ease-in-out infinite;
-          }
-          .animate-float-2 {
-            animation: float-2 7s ease-in-out infinite;
-          }
-          .animate-float-3 {
-            animation: float-3 5s ease-in-out infinite;
-          }
-          .animate-pulse-ring {
-            animation: pulse-ring 1.5s ease-out infinite;
-          }
+          .animate-float-1 { animation: float-1 6s ease-in-out infinite; }
+          .animate-float-2 { animation: float-2 7s ease-in-out infinite; }
+          .animate-float-3 { animation: float-3 5s ease-in-out infinite; }
+          .animate-pulse-ring { animation: pulse-ring 1.5s ease-out infinite; }
         `}</style>
       </div>
     );
   }
 
-  if (!user) return <Navigate to="/" replace />;
+  if (!user) return <Navigate to="/login" replace />;
   const userRole = profile?.role || user?.user_metadata?.role;
   if (allowedRoles && !allowedRoles.includes(userRole)) {
-    console.warn(
-      `Unauthorized role: ${userRole} for route requiring ${allowedRoles}`
-    );
+    console.warn(`Unauthorized role: ${userRole} for route requiring ${allowedRoles}`);
     return <Navigate to="/" replace />;
   }
 
   return children;
 };
 
-// Landing Page
 const LandingPage = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showAuth, setShowAuth] = useState(false);
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   if (loading) {
     return (
@@ -179,11 +131,11 @@ const LandingPage = () => {
       <Navbar
         isMenuOpen={isMenuOpen}
         setIsMenuOpen={setIsMenuOpen}
-        onAuthClick={() => setShowAuth(true)}
+        onAuthClick={() => navigate("/login")} // Changed to navigate to /login
       />
       <main className="relative z-10 flex flex-col gap-16 md:gap-24">
         <section className="w-full flex justify-center items-center pt-8 md:pt-16 pb-8 md:pb-16">
-          <Hero onAuthClick={() => setShowAuth(true)} />
+          <Hero />
         </section>
         <section className="w-full max-w-7xl mx-auto px-4 md:px-8">
           <Features />
@@ -198,42 +150,52 @@ const LandingPage = () => {
           <Metrics />
         </section>
         <section className="w-full max-w-4xl mx-auto px-4 md:px-8">
-          <CTA onAuthClick={() => setShowAuth(true)} />
+          <CTA />
         </section>
         <section className="w-full max-w-5xl mx-auto px-4 md:px-8">
           <TeamCarousel />
         </section>
       </main>
       <Footer />
-      {showAuth && (
-        <AuthPage
-          onClose={() => {
-            setShowAuth(false);
-            navigate("/");
-          }}
-          onSuccess={(userData, role) => {
-            setShowAuth(false);
-            if (role === "Buyer") {
-              navigate("/buyer-dashboard");
-            } else if (role === "Supplier") {
-              navigate("/supplier-dashboard");
-            } else if (role === "Admin") {
-              navigate("/admin");
-            } else {
-              navigate("/buyer-dashboard");
-            }
-          }}
-        />
-      )}
     </div>
   );
 };
 
-// Main App
 function App() {
+  const navigate = useNavigate();
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route
+        path="/login"
+        element={
+          <LoginPage
+            onClose={() => navigate("/")}
+            onSuccess={(userData) => {
+              navigate("/dashboard");
+            }}
+          />
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          <Signup
+            onClose={() => navigate("/")}
+            onSuccess={(userData, role) => {
+              if (role === "Buyer") {
+                navigate("/buyer-dashboard");
+              } else if (role === "Supplier") {
+                navigate("/supplier-dashboard");
+              } else if (role === "Admin") {
+                navigate("/admin");
+              } else {
+                navigate("/buyer-dashboard");
+              }
+            }}
+          />
+        }
+      />
       <Route
         path="/supplier-dashboard"
         element={

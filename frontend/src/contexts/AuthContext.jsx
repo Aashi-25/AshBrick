@@ -71,8 +71,7 @@ export const AuthProvider = ({ children }) => {
         const metadata = session.user.user_metadata || {};
         const fallbackName = metadata.name || session.user.email?.split("@")[0];
         const fallbackRole = metadata.role || "Buyer";
-
-        // ✅ Create profile if missing or name is null
+        //create profile if user doesnt exist 
         if (error || !data || !data.name) {
           const { error: createErr } = await authHelpers.createProfile(
             session.user.id,
@@ -106,7 +105,7 @@ export const AuthProvider = ({ children }) => {
         navigate("/dashboard");
       } else if (event === "SIGNED_OUT") {
         setProfile(null);
-        navigate("/#login");
+        navigate("/login");
       }
     });
 

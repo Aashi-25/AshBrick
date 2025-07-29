@@ -8,7 +8,8 @@ import {
   deleteOrder,
 } from "../controllers/orderController.js";
 
-import { verifyToken } from "../middlewares/VerifyToken.js";
+
+import { verifyToken } from "../middleware/verifyToken.js";
 
 const orderrouter = Router();
 

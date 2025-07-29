@@ -3,8 +3,6 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-console.log("Supabase URL:", supabaseUrl);
-
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error("Missing Supabase environment variables");
 }
@@ -12,64 +10,69 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export const authHelpers = {
-async signUp(email, password, role, name) {
-  try {
-    console.log("📧 Signing up:", { email, role, name });
+  // Sign up new user
+  async signUp(email, password, role, name) {
+    try {
+      console.log("📧 Signing up:", { email, role, name });
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          role,
-          name: name?.trim(),
+      // Validate role
+      if (!['Buyer', 'Supplier'].includes(role)) {
+        return { 
+          data: null, 
+          error: new Error("Invalid role. Only 'Buyer' and 'Supplier' are allowed for signup.") 
+        };
+      }
+
+      // Sign up with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            role,
+            name: name?.trim(),
+          },
         },
-      },
-    });
+      });
 
-    if (error) {
-      console.error("❌ Signup error:", error);
-      return { data: null, error };
+      if (authError) {
+        console.error("❌ Signup error:", authError);
+        return { data: null, error: authError };
+      }
+
+      const user = authData.user;
+      const session = authData.session;
+
+      // If no session, user needs to confirm email
+      if (!session) {
+        console.warn("⚠️ No session returned. User needs to confirm email.");
+        return {
+          data: authData,
+          error: null,
+          message: "Please check your email to confirm your account.",
+        };
+      }
+
+      // Create profile after successful signup
+      const { error: profileError } = await this.createProfile(
+        user.id,
+        email,
+        role,
+        name
+      );
+
+      if (profileError) {
+        console.error("❌ Profile creation error:", profileError);
+        // Don't return error, profile can be created later
+      }
+
+      console.log("✅ Signup successful");
+      return { data: authData, error: null };
+    } catch (err) {
+      console.error("❌ Unexpected signup error:", err);
+      return { data: null, error: err };
     }
-
-    const user = data.user;
-    const session = data.session;
-
-    const userId = user?.id ?? session?.user?.id;
-
-    // wait for email confirmation
-    if (!session) {
-      console.warn("⚠️ No session returned. Ask user to check their email.");
-      return {
-        data,
-        error: new Error("Check your email to confirm and log in."),
-      };
-    }
-
-    // build name from metadata if needed
-    const meta = session?.user?.user_metadata || {};
-    const fallbackName = meta.name || email.split("@")[0];
-    const fallbackRole = meta.role || role || "Buyer";
-
-    const { error: profileError } = await authHelpers.createProfile(
-      userId,
-      email,
-      fallbackRole,
-      fallbackName
-    );
-
-    if (profileError) {
-      console.error("❌ Profile creation error:", profileError);
-      return { data, error: profileError };
-    }
-
-    console.log("✅ Signup & profile created");
-    return { data, error: null };
-  } catch (err) {
-    console.error("❌ Unexpected signup error:", err);
-    return { data: null, error: err };
-  }
-},
+  },
 
 
 
@@ -206,23 +209,65 @@ async signUp(email, password, role, name) {
         .from("profiles")
         .select("email")
         .eq("email", email)
-        .single();
+        .maybeSingle();
 
-      // If no error and data exists, email is taken
-      if (data && !error) {
-        return { exists: true, error: null };
+      if (error && error.code !== 'PGRST116') {
+        return { exists: null, error };
       }
 
-      // If error code is PGRST116, no rows found - email available
-      if (error && error.code === "PGRST116") {
-        return { exists: false, error: null };
-      }
-
-      // Other errors
-      return { exists: null, error };
+      return { exists: !!data, error: null };
     } catch (err) {
       console.error("❌ Email check error:", err);
       return { exists: null, error: err };
+    }
+  },
+
+  // Get current session
+  async getSession() {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      return { session, error };
+    } catch (err) {
+      console.error("❌ Get session error:", err);
+      return { session: null, error: err };
+    }
+  },
+
+  // Reset password
+  async resetPassword(email) {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        console.error("❌ Password reset error:", error);
+        return { error };
+      }
+
+      return { error: null };
+    } catch (err) {
+      console.error("❌ Unexpected password reset error:", err);
+      return { error: err };
+    }
+  },
+
+  // Update password
+  async updatePassword(newPassword) {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (error) {
+        console.error("❌ Password update error:", error);
+        return { error };
+      }
+
+      return { error: null };
+    } catch (err) {
+      console.error("❌ Unexpected password update error:", err);
+      return { error: err };
     }
   },
 };

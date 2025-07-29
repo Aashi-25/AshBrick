@@ -3,13 +3,14 @@ import cors from "cors";
 import "dotenv/config";
 import { con } from "./db/supabasesClients.js";
 
+
 // Routes
 import orderrouter from "./routes/orderroute.js";
 import productroute from "./routes/productroute.js";
 import buyerRegisterRouter from "./routes/buyerRegister.js";
 
 const app = express();
-const port =  3000 || process.env.PORT ; 
+const port = 3000 || process.env.PORT ;
 
 // Middleware
 app.use(cors());

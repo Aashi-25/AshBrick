@@ -1,6 +1,5 @@
 import { con } from "../db/supabasesClients.js";
 
-
 export const getAllProducts = async (req, res) => {
   try {
     const { data, error } = await con
@@ -29,22 +28,25 @@ export const createProduct = async (req, res) => {
       return res.status(400).json({ error: "All fields are required" });
     }
 
+    // Assuming verifyToken and requireSupplier are applied in the route
+    if (req.userRole !== "Supplier") {
+      return res.status(403).json({ error: "Supplier access required" });
+    }
+
     const { data, error } = await con
       .from("products")
-      .insert([
-        { name, description, price, quantity_available }
-      ])
+      .insert([{ name, description, price, quantity_available }])
       .select()
       .single();
 
     if (error) {
-      console.error(" Supabase insert error:", error.message);
+      console.error("Supabase insert error:", error.message);
       return res.status(500).json({ error: "Failed to create product" });
     }
 
     res.status(201).json(data);
   } catch (err) {
-    console.error(" Unknown error:", err.message);
+    console.error("Unknown error:", err.message);
     res.status(500).json({ error: "Server error while creating product" });
   }
 };

@@ -1,12 +1,24 @@
 import { con } from "../db/supabasesClients.js";
 
+
+//create
 export const createOrder = async (req, res) => {
   try {
-    const { buyer_id, product_id, quantity } = req.body;
+    const { user_id, product_id, quantity } = req.body;
 
-    if (!buyer_id || !product_id || !quantity) {
+    if (!user_id || !product_id || !quantity) {
       return res.status(400).json({ error: "Missing required fields" });
     }
+
+    const { data: buyer, error: buyerErr } = await con
+      .from("buyers")
+      .select("id")
+      .eq("user_id", user_id)
+      .single();
+
+    if (buyerErr) return res.status(404).json({ error: "Buyer not found" });
+
+    const buyerId = buyer.id;
 
     const { data: product, error: productErr } = await con
       .from("products")
@@ -16,21 +28,11 @@ export const createOrder = async (req, res) => {
 
     if (productErr) return res.status(404).json({ error: "Product not found" });
 
-    
-    const { data: buyer, error: buyerErr } = await con
-      .from("buyers")
-      .select("*")
-      .eq("user_id", buyer_id)
-      .single();
-
-    if (buyerErr) return res.status(404).json({ error: "Buyer not found" });
-
     const total_price = quantity * parseFloat(product.price);
 
-   
     const { data: newOrder, error: insertErr } = await con
       .from("orders")
-      .insert([{ buyer_id, product_id, quantity, total_price }])
+      .insert([{ buyer_id: buyerId, product_id, quantity, total_price }])
       .select()
       .single();
 
@@ -43,6 +45,7 @@ export const createOrder = async (req, res) => {
   }
 };
 
+//getallorders
 
 export const getAllOrders = async (req, res) => {
   try {
@@ -60,7 +63,7 @@ export const getAllOrders = async (req, res) => {
   }
 };
 
-
+//getbyid
 export const getOrderById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -69,9 +72,10 @@ export const getOrderById = async (req, res) => {
       .from("orders")
       .select("*")
       .eq("id", id)
+      .eq("buyer_id", req.userId) 
       .single();
 
-    if (error) return res.status(404).json({ error: "Order not found" });
+    if (error || !data) return res.status(404).json({ error: "Order not found or access denied" });
 
     res.json(data);
   } catch (error) {
@@ -79,8 +83,6 @@ export const getOrderById = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch order" });
   }
 };
-
-
 export const updateOrder = async (req, res) => {
   try {
     const { id } = req.params;

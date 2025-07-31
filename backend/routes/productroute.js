@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { getAllProducts,createProduct } from "../controllers/productsController.js";
-const productroute = Router();
+import { getAllProducts, createProduct } from "../controllers/productsController.js";
+import { verifyToken, requireSupplier } from "../middleware/verifyToken.js";
 
-productroute.get("/",getAllProducts);
-productroute.post("/",createProduct);
+const router = Router();
 
+router.get("/", getAllProducts); 
+router.post("/", verifyToken, requireSupplier, createProduct); // Only suppliers can create products
 
-export default productroute;
+export default router;

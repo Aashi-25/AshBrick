@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
 
   const handleProfileSetup = async (sessionUser) => {
     try {
-      console.log("🔍 Setting up profile for user:", sessionUser.id);
+      console.log("Setting up profile for user:", sessionUser.id);
 
       // Try to fetch existing profile first
       const { data, error } = await supabase
@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
       console.log("📊 Profile data:", { data, error });
       console.log("🔄 Fallback values:", { fallbackName, fallbackRole });
 
-      // If profile doesn't exist or has missing/null name, create/update it
+      //  create/update it
       if (error || !data || !data.name || data.name === "Unknown") {
         console.log(
           "🔄 Creating/updating profile due to missing or invalid name"
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
 
         if (createErr) {
           console.error("❌ Failed to auto-create/update profile:", createErr);
-          // Set profile with fallback values even if creation failed
+          // Set profile with fallback values
           setProfile({
             id: sessionUser.id,
             role: fallbackRole,

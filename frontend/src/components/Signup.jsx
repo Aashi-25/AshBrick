@@ -86,7 +86,7 @@ const Signup = ({ onClose, onSuccess }) => {
           onSuccess?.();
           navigate("/dashboard");
         }
-      }, 3000); // Poll every 3 seconds
+      }, 3000); 
     }
     return () => clearInterval(verificationInterval);
   }, [showVerificationPopup, supabase, navigate, onSuccess]);

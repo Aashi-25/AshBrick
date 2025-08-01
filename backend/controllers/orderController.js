@@ -1,4 +1,4 @@
-import { con } from "../db/supabasesClients.js";
+import { con  } from "../db/supabasesClients.js";
 
 
 //create

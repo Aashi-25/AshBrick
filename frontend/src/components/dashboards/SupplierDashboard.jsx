@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../../lib/supabase";
 import {
   Factory,
   Plus,
@@ -19,7 +20,6 @@ import {
   Loader2,
 } from "lucide-react";
 
-// InfoCard component defined before usage
 const InfoCard = ({ title, value, icon: Icon, color }) => (
   <div
     className={`bg-black/80 p-6 rounded-xl border border-${color}-400/20 shadow-lg shadow-${color}-400/10 hover:shadow-${color}-400/20 transition-all duration-300 group relative overflow-hidden`}
@@ -70,28 +70,44 @@ const SupplierDashboard = () => {
     }
   }, [user, profile, navigate, activeTab]);
 
+  const getAuthToken = async () => {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error || !session) {
+      console.error("Session error:", error?.message || "No session");
+      throw new Error("Authentication error: Please log in again");
+    }
+    console.log("Token retrieved:", session.access_token);
+    return session.access_token;
+  };
+
   const fetchListings = async () => {
     setIsLoading(true);
     try {
+      const token = await getAuthToken();
       const response = await fetch("http://localhost:3000/api/products", {
         method: "GET",
         headers: {
-          "X-User-Email": user.email,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ email: user.email }), // Fallback for body-based auth
       });
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to fetch listings: ${response.status} - ${errorText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          `Failed to fetch products: ${response.status} - ${
+            errorData.message || response.statusText
+          }`
+        );
       }
       const data = await response.json();
       console.log("Raw API response:", data);
-      const supplierListings = data.filter((listing) => listing.supplier_email === user.email);
-      console.log("Filtered listings for supplier:", supplierListings);
+      const supplierListings = data.filter(
+        (listing) => listing.supplier_id === user.id
+      );
+      console.log("Filtered products for supplier:", supplierListings);
       setListings(supplierListings);
       setError(null);
     } catch (err) {
-      console.error("Fetch error:", err);
+      console.error("Fetch products error:", err);
       setError(err.message);
     } finally {
       setIsLoading(false);
@@ -101,19 +117,27 @@ const SupplierDashboard = () => {
   const fetchMessages = async () => {
     setIsLoading(true);
     try {
+      const token = await getAuthToken();
       const response = await fetch("http://localhost:3000/api/messages", {
         method: "GET",
         headers: {
-          "X-User-Email": user.email,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ email: user.email }), // Fallback for body-based auth
       });
-      if (!response.ok) throw new Error("Failed to fetch messages");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          `Failed to fetch messages: ${response.status} - ${
+            errorData.message || response.statusText
+          }`
+        );
+      }
       const data = await response.json();
       setMessages(data);
       setError(null);
     } catch (err) {
-      setError("Failed to fetch messages");
+      console.error("Fetch messages error:", err);
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
@@ -130,32 +154,40 @@ const SupplierDashboard = () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("name", ashListing.name);
-    formData.append("description", ashListing.description);
-    formData.append("price", ashListing.price);
-    formData.append("quantity_available", ashListing.volume);
-    formData.append("location", ashListing.location);
-    formData.append("supplier_email", user.email);
-    if (labReport) formData.append("labReport", labReport);
-
-    setIsLoading(true);
     try {
+      const token = await getAuthToken();
+      const formData = new FormData();
+      formData.append("name", ashListing.name);
+      formData.append("description", ashListing.description);
+      formData.append("price", ashListing.price);
+      formData.append("quantity_available", ashListing.volume);
+      formData.append("location", ashListing.location);
+      formData.append("supplier_id", user.id);
+      if (labReport) formData.append("labReport", labReport);
+
+      setIsLoading(true);
       const response = await fetch("http://localhost:3000/api/products", {
         method: "POST",
         headers: {
-          "X-User-Email": user.email,
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       });
+
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to create listing: ${response.status} - ${errorText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          `Failed to create listing: ${response.status} - ${
+            errorData.message || response.statusText
+          }`
+        );
       }
+
       const data = await response.json();
+      console.log("Listing created:", data);
       setAshListing({ name: "", volume: "", location: "", price: "", description: "" });
       setLabReport(null);
-      fetchListings(); // Refresh listings
+      fetchListings();
       setError(null);
     } catch (err) {
       console.error("Submit error:", err);
@@ -173,18 +205,27 @@ const SupplierDashboard = () => {
     }
     setIsLoading(true);
     try {
+      const token = await getAuthToken();
       const response = await fetch("http://localhost:3000/api/supplier/settings", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "X-User-Email": user.email,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(settings),
+        body: JSON.stringify({ ...settings, user_id: user.id }),
       });
-      if (!response.ok) throw new Error("Failed to update settings");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          `Failed to update settings: ${response.status} - ${
+            errorData.message || response.statusText
+          }`
+        );
+      }
       setError(null);
     } catch (err) {
-      setError("Failed to update settings");
+      console.error("Update settings error:", err);
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
@@ -353,7 +394,7 @@ const SupplierDashboard = () => {
                           </div>
                           <div className="flex items-center space-x-1">
                             <Calendar className="w-4 h-4 text-green-400" />
-                            <span>{new Date().toLocaleDateString()}</span>
+                            <span>{listing.created_at ? new Date(listing.created_at).toLocaleDateString() : "N/A"}</span>
                           </div>
                         </div>
                       </div>
@@ -423,7 +464,6 @@ const SupplierDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-green-900/20 to-black text-white flex relative overflow-hidden">
-      {/* Sidebar and background effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
         {[...Array(12)].map((_, i) => (
           <div

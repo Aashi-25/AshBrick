@@ -85,6 +85,28 @@ const SupplierDashboard = () => {
     return session.access_token;
   };
 
+   const handleDelete = async (productId) => {
+     const token = await getAuthToken();
+     const response = await fetch(`http://localhost:3000/delete/${productId}`, {
+       method: "DELETE",
+       headers: {
+         Authorization: `Bearer ${token}`,
+       },
+     });
+     if (!response.ok) {
+       const errorData = await response.json().catch(() => ({}));
+       throw new Error(
+         `Failed to delete product: ${response.status} - ${
+           errorData.message || response.statusText
+         }`
+       );
+     }
+     // Remove the deleted product from the state
+     setListings((prevListings) =>
+       prevListings.filter((listing) => listing.id !== productId)
+     );
+   };
+
   const fetchListings = async () => {
     setIsLoading(true);
     try {
@@ -498,9 +520,18 @@ const SupplierDashboard = () => {
                           </div>
                         </div>
                       </div>
-                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-900/30 text-green-400 border border-green-400/20">
-                        Active
-                      </span>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-900/30 text-green-400 border border-green-400/20">
+                          Active
+                        </span>
+
+                        <button
+                          className="px-3 py-1 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-400/20 hover:bg-red-900/50 transition"
+                          onClick={() => handleDelete(listing.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))
@@ -547,7 +578,7 @@ const SupplierDashboard = () => {
       case "settings":
         return (
           <div className="bg-black/80 rounded-xl border border-green-400/20 p-6 shadow-lg shadow-green-400/10">
-            <h2 className="text-xl font-bold text-green-400 mb-4">Settings</h2>
+            <h2 className="text-xl font-bold text-green-400 mb-4">My Account</h2>
             {error && <div className="text-red-400 mb-4">{error}</div>}
             <form onSubmit={handleSettingsSubmit} className="space-y-4">
               <div>

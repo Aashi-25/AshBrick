@@ -1,4 +1,4 @@
-import { con  } from "../db/supabasesClients.js";
+import { con as supabase } from "../db/supabasesClients.js";
 
 
 //create
@@ -10,7 +10,7 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const { data: buyer, error: buyerErr } = await con
+    const { data: buyer, error: buyerErr } = await supabase
       .from("buyers")
       .select("id")
       .eq("user_id", user_id)
@@ -20,7 +20,7 @@ export const createOrder = async (req, res) => {
 
     const buyerId = buyer.id;
 
-    const { data: product, error: productErr } = await con
+    const { data: product, error: productErr } = await supabase
       .from("products")
       .select("price")
       .eq("id", product_id)
@@ -49,7 +49,7 @@ export const createOrder = async (req, res) => {
 
 export const getAllOrders = async (req, res) => {
   try {
-    const { data, error } = await con
+    const { data, error } = await supabase
       .from("orders")
       .select("*")
       .order("created_at", { ascending: false });
@@ -68,7 +68,7 @@ export const getOrderById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { data, error } = await con
+    const { data, error } = await supabase
       .from("orders")
       .select("*")
       .eq("id", id)
@@ -92,8 +92,8 @@ export const updateOrder = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
- 
-    const { data: product, error: productErr } = await con
+
+    const { data: product, error: productErr } = await supabase
       .from("products")
       .select("price")
       .eq("id", product_id)
@@ -129,7 +129,7 @@ export const deleteOrder = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { data: deletedOrder, error } = await con
+    const { data: deletedOrder, error } = await supabase
       .from("orders")
       .delete()
       .eq("id", id)

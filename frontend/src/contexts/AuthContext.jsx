@@ -129,6 +129,7 @@ export const AuthProvider = ({ children }) => {
     signIn: authHelpers.signIn,
     signOut: authHelpers.signOut,
     loading,
+    supabase,
   };
 
   return (

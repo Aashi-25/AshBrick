@@ -1,7 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../lib/supabase";
+import { authHelpers } from "../lib/supabase";
 import {
   Factory,
   Mail,
@@ -35,7 +36,7 @@ const Signup = ({ onClose, onSuccess }) => {
     role: "Buyer",
   });
 
-  const { signUp, supabase } = useAuth();
+  const { signUp } = useAuth();
   const navigate = useNavigate();
 
   const roles = [
@@ -72,24 +73,34 @@ const Signup = ({ onClose, onSuccess }) => {
   }, [message]);
 
   useEffect(() => {
-    let verificationInterval;
-    if (showVerificationPopup) {
-      verificationInterval = setInterval(async () => {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error) {
-          console.error("❌ Error checking verification status:", error.message);
+  let verificationInterval;
+  if (showVerificationPopup && formData.email) {
+    verificationInterval = setInterval(async () => {
+      try {
+        const { verified, exists, error } = await authHelpers.checkEmailVerification(formData.email);
+        
+        if (error && !error.message?.includes("Invalid login credentials") && !error.message?.includes("Email not confirmed")) {
+          console.error("❌ Error checking verification:", error.message);
           return;
         }
-        if (user?.email_confirmed_at) {
-          console.log("✅ Email verified for user:", user.id);
+        
+        if (verified && exists) {
+          console.log("✅ Email verified!");
           setShowVerificationPopup(false);
           onSuccess?.();
           navigate("/dashboard");
         }
-      }, 3000); 
-    }
-    return () => clearInterval(verificationInterval);
-  }, [showVerificationPopup, supabase, navigate, onSuccess]);
+      } catch (err) {
+        console.error("❌ Verification check failed:", err);
+      }
+    }, 3000); 
+  }
+  return () => clearInterval(verificationInterval);
+}, [showVerificationPopup, formData.email, navigate, onSuccess]);
+
+
+
+
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

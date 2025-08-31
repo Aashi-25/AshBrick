@@ -9,36 +9,108 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+async function createProfile(userId, email, role, name) {
+  try {
+    const finalName = name?.trim() || "Unknown";
+    console.log("📝 Creating profile and role-specific record:", {
+      userId,
+      email,
+      role,
+      name: finalName,
+    });
+
+    // Create profile record
+    const profileData = {
+      id: userId,
+      email,
+      role,
+      name: finalName,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    const { data: profileResult, error: profileError } = await supabase
+      .from("profiles")
+      .upsert(profileData, { onConflict: "id" });
+
+    if (profileError) {
+      console.error("❌ Profile upsert error:", profileError);
+      return { data: null, error: profileError };
+    }
+
+    console.log("✅ Profile created/updated");
+
+    // Create role-specific record
+    if (role === "Buyer") {
+      console.log("📝 Creating buyer record...");
+      const { data: buyerData, error: buyerError } = await supabase
+        .from("buyers")
+        .upsert(
+          {
+            id: userId, 
+            name: finalName,
+            email: email,
+            created_at: new Date().toISOString(),
+          },
+          { onConflict: "id" }
+        );
+
+      if (buyerError) {
+        console.error("❌ Buyer record creation error:", buyerError);
+        return { data: profileResult, error: buyerError };
+      } else {
+        console.log("✅ Buyer record created:", buyerData);
+      }
+    } else if (role === "Supplier") {
+      console.log("📝 Creating supplier record...");
+      const { data: supplierData, error: supplierError } = await supabase
+        .from("suppliers")
+        .upsert(
+          {
+            id: userId, 
+            name: finalName,
+            email: email,
+            created_at: new Date().toISOString(),
+          },
+          { onConflict: "id" }
+        );
+
+      if (supplierError) {
+        console.error("❌ Supplier record creation error:", supplierError);
+        return { data: profileResult, error: supplierError };
+      } else {
+        console.log("✅ Supplier record created:", supplierData);
+      }
+    }
+
+    console.log("✅ All records created successfully");
+    return { data: profileResult, error: null };
+  } catch (err) {
+    console.error("❌ Unexpected profile creation error:", err);
+    return { data: null, error: err };
+  }
+}
+
 export const authHelpers = {
+  //Signup
   async signUp(email, password, role, name) {
     try {
       console.log("📧 Signing up:", { email, role, name });
 
-      // Validate role
       if (!["Buyer", "Supplier"].includes(role)) {
         return {
           data: null,
-          error: new Error(
-            "Invalid role. Only 'Buyer' and 'Supplier' are allowed for signup."
-          ),
+          error: new Error("Invalid role. Only 'Buyer' or 'Supplier' allowed."),
         };
       }
 
-      // Ensure name is non-empty for user_metadata
-      const trimmedName = name?.trim();
-      const finalName = trimmedName || "Unknown";
+      const finalName = name?.trim() || "Unknown";
 
-      console.log("🔍 Final name being used:", finalName);
-
-      // Sign up with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: {
-            role,
-            name: finalName,
-          },
+          data: { role, name: finalName },
         },
       });
 
@@ -47,33 +119,10 @@ export const authHelpers = {
         return { data: null, error: authError };
       }
 
-      const user = authData.user;
-      const session = authData.session;
+      // Don't create profile immediately - let it be created after email verification
+      // The profile will be created when user signs in after verification
 
-      // If no session, user needs to confirm email
-      if (!session) {
-        console.warn("⚠️ No session returned. User needs to confirm email.");
-        return {
-          data: authData,
-          error: null,
-          message: "Please check your email to confirm your account.",
-        };
-      }
-
-      // Create or update profile after successful signup
-      const { error: profileError } = await authHelpers.createProfile(
-        user.id,
-        email,
-        role,
-        finalName
-      );
-
-      if (profileError) {
-        console.error("❌ Profile creation error:", profileError);
-        // Don't return error, profile can be created later
-      }
-
-      console.log("✅ Signup successful");
+      console.log("✅ Signup successful - Check email for verification");
       return { data: authData, error: null };
     } catch (err) {
       console.error("❌ Unexpected signup error:", err);
@@ -81,147 +130,86 @@ export const authHelpers = {
     }
   },
 
-  // Create or update user profile (SINGLE METHOD)
+  // Keep createProfile in authHelpers for AuthContext compatibility
   async createProfile(userId, email, role, name) {
-    try {
-      const trimmedName = name?.trim();
-      const finalName = trimmedName || "Unknown";
-      
-      console.log("📝 Creating profile with data:", {
-        userId,
-        email,
-        role,
-        name: finalName
-      });
-
-      const profileData = {
-        id: userId,
-        email,
-        role,
-        name: finalName,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-      // Use upsert to handle both create and update cases
-      const { data, error } = await supabase
-        .from("profiles")
-        .upsert(profileData, {
-          onConflict: "id",
-          ignoreDuplicates: false
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error("❌ Profile upsert error:", error);
-        return { data: null, error };
-      }
-
-      console.log("✅ Profile created/updated successfully:", data);
-      return { data, error: null };
-    } catch (err) {
-      console.error("❌ Unexpected profile creation error:", err);
-      return { data: null, error: err };
-    }
+    return await createProfile(userId, email, role, name);
   },
 
-  // Sign in
+  // Simple method to create profile after manual verification
+  async createProfileAfterVerification(userId, email, role, name) {
+    return await createProfile(userId, email, role, name);
+  },
+
   async signIn(email, password) {
     try {
       console.log("🔐 Signing in:", email);
-
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) {
-        console.error("❌ Signin error:", error);
-        return { data: null, error };
+      if (error) return { data: null, error };
+
+      // Create profile if it doesn't exist (for users who verified email)
+      if (data.user) {
+        const { data: existingProfile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("id", data.user.id)
+          .single();
+
+        if (!existingProfile && data.user.user_metadata) {
+          await createProfile(
+            data.user.id,
+            data.user.email,
+            data.user.user_metadata.role || "Buyer",
+            data.user.user_metadata.name || "Unknown"
+          );
+        }
       }
 
-      console.log("✅ Signin successful:", data);
       return { data, error: null };
     } catch (err) {
-      console.error("❌ Unexpected signin error:", err);
       return { data: null, error: err };
     }
   },
 
-  // Sign out
   async signOut() {
     try {
-      console.log("👋 Signing out");
-
       const { error } = await supabase.auth.signOut();
-
-      if (error) {
-        console.error("❌ Signout error:", error);
-        return { error };
-      }
-
-      console.log("✅ Signout successful");
-      return { error: null };
+      return { error: error || null };
     } catch (err) {
-      console.error("❌ Unexpected signout error:", err);
       return { error: err };
     }
   },
 
-  // Get user profile with role
   async getUserProfile(userId) {
     try {
-      console.log("🔍 Fetching profile for:", userId);
-
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
         .single();
-
-      if (error) {
-        console.error("❌ Profile fetch error:", error);
-        return { data: null, error };
-      }
-
-      console.log("✅ Profile fetched:", data);
-      return { data, error: null };
+      return { data, error: error || null };
     } catch (err) {
-      console.error("❌ Unexpected profile fetch error:", err);
       return { data: null, error: err };
     }
   },
 
-  // Update user profile
   async updateProfile(userId, updates) {
     try {
-      console.log("📝 Updating profile:", userId, updates);
-
       const { data, error } = await supabase
         .from("profiles")
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString(),
-        })
+        .update({ ...updates, updated_at: new Date().toISOString() })
         .eq("id", userId)
         .select()
         .single();
-
-      if (error) {
-        console.error("❌ Profile update error:", error);
-        return { data: null, error };
-      }
-
-      console.log("✅ Profile updated:", data);
-      return { data, error: null };
+      return { data, error: error || null };
     } catch (err) {
-      console.error("❌ Unexpected profile update error:", err);
       return { data: null, error: err };
     }
   },
 
-  // Check if email exists
   async checkEmailExists(email) {
     try {
       const { data, error } = await supabase
@@ -229,19 +217,15 @@ export const authHelpers = {
         .select("email")
         .eq("email", email)
         .maybeSingle();
-
-      if (error && error.code !== "PGRST116") {
-        return { exists: null, error };
-      }
-
-      return { exists: !!data, error: null };
+      return {
+        exists: !!data,
+        error: error?.code !== "PGRST116" ? error : null,
+      };
     } catch (err) {
-      console.error("❌ Email check error:", err);
       return { exists: null, error: err };
     }
   },
 
-  // Get current session
   async getSession() {
     try {
       const {
@@ -250,45 +234,28 @@ export const authHelpers = {
       } = await supabase.auth.getSession();
       return { session, error };
     } catch (err) {
-      console.error("❌ Get session error:", err);
       return { session: null, error: err };
     }
   },
 
-  // Reset password
   async resetPassword(email) {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
-
-      if (error) {
-        console.error("❌ Password reset error:", error);
-        return { error };
-      }
-
-      return { error: null };
+      return { error: error || null };
     } catch (err) {
-      console.error("❌ Unexpected password reset error:", err);
       return { error: err };
     }
   },
 
-  // Update password
   async updatePassword(newPassword) {
     try {
       const { error } = await supabase.auth.updateUser({
         password: newPassword,
       });
-
-      if (error) {
-        console.error("❌ Password update error:", error);
-        return { error };
-      }
-
-      return { error: null };
+      return { error: error || null };
     } catch (err) {
-      console.error("❌ Unexpected password update error:", err);
       return { error: err };
     }
   },

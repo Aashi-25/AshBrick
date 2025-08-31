@@ -2,6 +2,8 @@ import { useState, useEffect, Component } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
+import MapComponents from "../Other/MapComponents";
+
 import {
   Building,
   Map,
@@ -294,15 +296,10 @@ const BuyerDashboard = () => {
               <h2 className="text-xl font-bold mb-4 text-green-400">
                 Nearby Suppliers
               </h2>
-              <div className="bg-black/60 h-64 rounded-xl flex items-center justify-center text-green-300 relative overflow-hidden">
+              <div className="bg-black/60 h-100 rounded-xl relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-transparent animate-pulse-ring" />
-                <div className="text-center relative z-10">
-                  <Map className="w-12 h-12 mx-auto mb-2 text-green-400" />
-                  <p>Interactive Map Coming Soon</p>
-                  <p className="text-sm text-green-300/70">
-                    Real-time supplier locations
-                  </p>
-                </div>
+                <MapComponents className="absolute inset-0 w-full h-full" />
+                <Map className="absolute top-4 left-4 w-8 h-8 text-green-400" />
               </div>
             </div>
           </div>
@@ -367,14 +364,14 @@ const BuyerDashboard = () => {
                         </div>
                       </div>
                       <button
-                        onClick={() => createOrder(product.id, 1)}
-                        className="bg-gradient-to-r from-green-400 to-emerald-500 px-6 py-2 rounded-xl text-black font-semibold hover:scale-105 transition-all duration-300 group/button relative overflow-hidden w-full sm:w-auto"
+                        onClick={() => navigate("/buyer-req")}
+                        className="group relative bg-gradient-to-r from-green-400 to-emerald-500 px-6 py-2 rounded-xl text-white font-semibold flex items-center justify-center space-x-2 overflow-hidden w-full sm:w-auto transition-all duration-300 hover:scale-105"
                         aria-label={`Request quote for ${product.name}`}
                       >
-                        <div className="absolute inset-0 bg-gradient-to-r from-green-300 to-emerald-400 opacity-0 group-hover/button:opacity-100 transition-opacity duration-300" />
-                        <span className="relative z-10 flex items-center justify-center space-x-2">
+                        <span className="absolute inset-0 bg-gradient-to-r from-green-300 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                        <span className="relative z-10 flex items-center space-x-2">
                           <span>Request Quote</span>
-                          <ArrowRight className="w-4 h-4 group-hover/button:translate-x-1 transition-transform duration-300" />
+                          <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
                         </span>
                       </button>
                     </div>

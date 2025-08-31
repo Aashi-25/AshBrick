@@ -8,6 +8,7 @@ import { verifyToken, requireBuyer } from "./middleware/verifyToken.js"; // Adju
 import orderrouter from "./routes/orderroute.js";
 import productroute from "./routes/productroute.js";
 import buyerRegisterRouter from "./routes/buyerRegister.js";
+import queryrouter from "./routes/buyerQuery.js";
 const app = express();
 const port = 3000 || process.env.PORT;
 
@@ -28,6 +29,7 @@ app.use("/api/orders", verifyToken, requireBuyer, orderrouter);
 app.use("/api/products", productroute); 
 app.use("/api/buyers/register", buyerRegisterRouter); 
 app.use("/delete", productroute);
+app.use("/buyer/query",queryrouter);
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);

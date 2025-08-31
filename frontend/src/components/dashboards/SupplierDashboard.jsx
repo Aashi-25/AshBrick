@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
+import { useNavigate } from "react-router-dom";
 import {
   Factory,
   Plus,
@@ -85,27 +85,27 @@ const SupplierDashboard = () => {
     return session.access_token;
   };
 
-   const handleDelete = async (productId) => {
-     const token = await getAuthToken();
-     const response = await fetch(`http://localhost:3000/delete/${productId}`, {
-       method: "DELETE",
-       headers: {
-         Authorization: `Bearer ${token}`,
-       },
-     });
-     if (!response.ok) {
-       const errorData = await response.json().catch(() => ({}));
-       throw new Error(
-         `Failed to delete product: ${response.status} - ${
-           errorData.message || response.statusText
-         }`
-       );
-     }
-     // Remove the deleted product from the state
-     setListings((prevListings) =>
-       prevListings.filter((listing) => listing.id !== productId)
-     );
-   };
+  const handleDelete = async (productId) => {
+    const token = await getAuthToken();
+    const response = await fetch(`http://localhost:3000/delete/${productId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        `Failed to delete product: ${response.status} - ${
+          errorData.message || response.statusText
+        }`
+      );
+    }
+    // Remove the deleted product from the state
+    setListings((prevListings) =>
+      prevListings.filter((listing) => listing.id !== productId)
+    );
+  };
 
   const fetchListings = async () => {
     setIsLoading(true);
@@ -145,15 +145,17 @@ const SupplierDashboard = () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
-        .from("messages")
-        .select("id, sender, subject, timestamp")
-        .eq("user_id", user.id)
-        .order("timestamp", { ascending: false });
+        .from("queries")
+        .select(
+          "id, buyer_id, supplier_id, message, response, status, created_at"
+        )
+        .eq("supplier_id", user.id) // supplier's perspective
+        .order("created_at", { ascending: false });
+
       if (error) {
-        throw new Error(
-          `Failed to fetch messages from Supabase: ${error.message}`
-        );
+        throw new Error(`Failed to fetch queries: ${error.message}`);
       }
+
       setMessages(data);
       setError(null);
     } catch (err) {
@@ -578,7 +580,9 @@ const SupplierDashboard = () => {
       case "settings":
         return (
           <div className="bg-black/80 rounded-xl border border-green-400/20 p-6 shadow-lg shadow-green-400/10">
-            <h2 className="text-xl font-bold text-green-400 mb-4">My Account</h2>
+            <h2 className="text-xl font-bold text-green-400 mb-4">
+              My Account
+            </h2>
             {error && <div className="text-red-400 mb-4">{error}</div>}
             <form onSubmit={handleSettingsSubmit} className="space-y-4">
               <div>

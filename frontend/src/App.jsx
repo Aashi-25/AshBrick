@@ -17,6 +17,7 @@ import { useState, useEffect } from "react";
 import ResetPassword from "./components/ResetPassword";
 import TeamCarousel from "./components/TeamCarousel";
 import AnimatedBackdrop from "./components/AnimatedBackdrop";
+import BuyerReq from "./components/dashboards/BuyerReq";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, profile, loading } = useAuth();
@@ -222,7 +223,9 @@ function App() {
       />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="*" element={<Navigate to="/" replace />} />
+     <Route path="/buyer-req" element={<BuyerReq />} />
     </Routes>
+    
   );
 }
 

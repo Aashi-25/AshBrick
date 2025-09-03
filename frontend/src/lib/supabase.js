@@ -119,7 +119,6 @@ export const authHelpers = {
         return { data: null, error: authError };
       }
 
-      // Don't create profile immediately - let it be created after email verification
       // The profile will be created when user signs in after verification
 
       console.log("✅ Signup successful - Check email for verification");

@@ -6,6 +6,4 @@ const con =createClient(
 )
 
 
-
-
 export {con};

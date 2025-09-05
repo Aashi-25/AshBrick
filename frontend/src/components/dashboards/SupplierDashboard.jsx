@@ -18,26 +18,53 @@ import {
   Sparkles,
   ArrowRight,
   Loader2,
+  BarChart2,
 } from "lucide-react";
 
-const InfoCard = ({ title, value, icon: Icon, color }) => (
-  <div
-    className={`bg-black/80 p-6 rounded-xl border border-${color}-400/20 shadow-lg shadow-${color}-400/10 hover:shadow-${color}-400/20 transition-all duration-300 group relative overflow-hidden`}
-  >
+// Color mapping for consistent styling
+const colorClasses = {
+  green: {
+    bg: "bg-green-400/20",
+    text: "text-green-400",
+    textLight: "text-green-300/70",
+    border: "border-green-400/20",
+    shadow: "shadow-green-400/10",
+    hoverShadow: "hover:shadow-green-400/20",
+    gradientFrom: "from-green-400/20",
+  },
+  emerald: {
+    bg: "bg-emerald-400/20",
+    text: "text-emerald-400",
+    textLight: "text-emerald-300/70",
+    border: "border-emerald-400/20",
+    shadow: "shadow-emerald-400/10",
+    hoverShadow: "hover:shadow-emerald-400/20",
+    gradientFrom: "from-emerald-400/20",
+  },
+};
+
+const InfoCard = ({ title, value, icon: Icon, color = "green" }) => {
+  const colors = colorClasses[color] || colorClasses.green;
+
+  return (
     <div
-      className={`absolute inset-0 bg-gradient-to-r from-${color}-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
-    />
-    <div className="flex items-center justify-between relative z-10">
-      <div>
-        <p className={`text-sm text-${color}-300/70`}>{title}</p>
-        <p className={`text-2xl font-bold text-${color}-400`}>{value}</p>
-      </div>
-      <Icon
-        className={`w-8 h-8 text-${color}-400/70 group-hover:scale-110 transition-transform duration-300`}
+      className={`bg-black/80 p-6 rounded-xl border ${colors.border} ${colors.shadow} ${colors.hoverShadow} transition-all duration-300 group relative overflow-hidden`}
+    >
+      <div
+        className={`absolute inset-0 bg-gradient-to-r ${colors.gradientFrom} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
       />
+      <div className="flex items-center justify-between relative z-10">
+        <div>
+          <p className={`text-sm ${colors.textLight}`}>{title}</p>
+          <p className={`text-2xl font-bold ${colors.text}`}>{value}</p>
+        </div>
+        <Icon
+          className={`w-8 h-8 ${colors.text}/70 group-hover:scale-110 transition-transform duration-300`}
+        />
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const SupplierDashboard = () => {
   const { user, profile, signOut } = useAuth();
@@ -57,6 +84,15 @@ const SupplierDashboard = () => {
   const [settings, setSettings] = useState({ name: profile?.name || "" });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [pricePrediction, setPricePrediction] = useState({
+    state: "",
+    city: "",
+    grade: "",
+    purity: "",
+    quantity: 0,
+  });
+
+  const [predictedPrice, setPredictedPrice] = useState(null);
 
   useEffect(() => {
     if (
@@ -86,25 +122,32 @@ const SupplierDashboard = () => {
   };
 
   const handleDelete = async (productId) => {
-    const token = await getAuthToken();
-    const response = await fetch(`http://localhost:3000/delete/${productId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        `Failed to delete product: ${response.status} - ${
-          errorData.message || response.statusText
-        }`
+    try {
+      const token = await getAuthToken();
+      const response = await fetch(
+        `http://localhost:3000/api/products/${productId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          `Failed to delete product: ${response.status} - ${
+            errorData.message || response.statusText
+          }`
+        );
+      }
+      setListings((prevListings) =>
+        prevListings.filter((listing) => listing.id !== productId)
+      );
+    } catch (err) {
+      console.error("Delete error:", err);
+      setError(err.message);
     }
-    // Remove the deleted product from the state
-    setListings((prevListings) =>
-      prevListings.filter((listing) => listing.id !== productId)
-    );
   };
 
   const fetchListings = async () => {
@@ -149,7 +192,7 @@ const SupplierDashboard = () => {
         .select(
           "id, buyer_id, supplier_id, message, response, status, created_at"
         )
-        .eq("supplier_id", user.id) // supplier's perspective
+        .eq("supplier_id", user.id)
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -192,7 +235,6 @@ const SupplierDashboard = () => {
       formData.append("supplier_id", user.id);
       if (labReport) formData.append("labReport", labReport);
 
-      // Log FormData for debugging
       console.log("Submitting listing with user ID:", user.id);
       for (let [key, value] of formData.entries()) {
         console.log(`FormData: ${key} = ${value}`);
@@ -277,6 +319,74 @@ const SupplierDashboard = () => {
     }
   };
 
+  const handlePricePredictionSubmit = async (e) => {
+    e.preventDefault();
+
+    const { state, city, grade, purity, quantity } = pricePrediction;
+
+    if (!state.trim() || !city.trim() || !grade.trim()) {
+      setError("State, City, and Grade are required.");
+      return;
+    }
+
+    if (purity === "" || purity < 0 || purity > 100) {
+      setError("Purity must be between 0 and 100.");
+      return;
+    }
+
+    if (quantity === "" || quantity <= 0) {
+      setError("Quantity must be a positive number.");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const token = await getAuthToken();
+
+      console.log({
+        State: state,
+
+        City: city,
+        Grade: grade,
+        Purity: parseFloat(purity),
+        Quantity: parseFloat(quantity),
+      });
+
+      const response = await fetch("http://localhost:3000/api/predict", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: JSON.stringify({
+          State: state,
+          City: city,
+          Grade: grade,
+          Purity: parseFloat(purity),
+          Quantity: parseFloat(quantity),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          `Failed to predict price: ${response.status} - ${
+            errorData.message || response.statusText
+          }`
+        );
+      }
+
+      const data = await response.json();
+      setPredictedPrice(data.predicted_price);
+      setError(null);
+    } catch (err) {
+      console.error("Price prediction error:", err);
+      setError("Failed to predict price. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -299,6 +409,12 @@ const SupplierDashboard = () => {
             <p className="text-sm text-green-300/70 mt-2">
               Unable to load messages. This feature may not be available yet.
               Please try again later or contact support.
+            </p>
+          )}
+          {error.includes("predict price") && (
+            <p className="text-sm text-green-300/70 mt-2">
+              Unable to predict price. Please check your inputs or try again
+              later.
             </p>
           )}
         </div>
@@ -507,7 +623,7 @@ const SupplierDashboard = () => {
                             <span>{listing.location || "N/A"}</span>
                           </div>
                           <div className="flex items-center space-x-1">
-                            <DollarSign className="w-4 h-4 text-green-400" />
+                          
                             <span>₹{listing.price}/ton</span>
                           </div>
                           <div className="flex items-center space-x-1">
@@ -526,7 +642,6 @@ const SupplierDashboard = () => {
                         <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-900/30 text-green-400 border border-green-400/20">
                           Active
                         </span>
-
                         <button
                           className="px-3 py-1 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-400/20 hover:bg-red-900/50 transition"
                           onClick={() => handleDelete(listing.id)}
@@ -560,19 +675,168 @@ const SupplierDashboard = () => {
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="font-medium text-green-300">
-                          {message.sender}
+                          Buyer ID: {message.buyer_id}
                         </p>
                         <p className="text-sm text-green-300/70">
-                          {message.subject}
+                          {message.message}
                         </p>
+                        {message.response && (
+                          <p className="text-sm text-green-300/70 mt-2">
+                            Response: {message.response}
+                          </p>
+                        )}
                       </div>
                       <p className="text-xs text-green-300/50">
-                        {new Date(message.timestamp).toLocaleDateString()}
+                        {new Date(message.created_at).toLocaleDateString()}
                       </p>
                     </div>
                   </li>
                 ))}
               </ul>
+            )}
+          </div>
+        );
+
+      case "price-predictor":
+        return (
+          <div className="bg-black/80 rounded-xl border border-green-400/20 p-6 shadow-lg shadow-green-400/10">
+            <h2 className="text-xl font-bold text-green-400 mb-6">
+              Price Predictor
+            </h2>
+            <form onSubmit={handlePricePredictionSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-green-300/70 mb-2">
+                    State
+                  </label>
+                  <input
+                    type="text"
+                    name="state"
+                    value={pricePrediction.state}
+                    onChange={(e) =>
+                      setPricePrediction({
+                        ...pricePrediction,
+                        state: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-3 bg-black/50 border border-green-400/20 rounded-xl focus:ring-2 focus:ring-green-400 text-white hover:bg-green-400/10 transition-all duration-300 outline-none"
+                    placeholder="Enter state"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-green-300/70 mb-2">
+                    City
+                  </label>
+                  <input
+                    type="text"
+                    name="city"
+                    value={pricePrediction.city}
+                    onChange={(e) =>
+                      setPricePrediction({
+                        ...pricePrediction,
+                        city: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-3 bg-black/50 border border-green-400/20 rounded-xl focus:ring-2 focus:ring-green-400 text-white hover:bg-green-400/10 transition-all duration-300 outline-none"
+                    placeholder="Enter city"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-green-300/70 mb-2">
+                    Grade
+                  </label>
+                  <input
+                    type="text"
+                    name="grade"
+                    value={pricePrediction.grade}
+                    onChange={(e) =>
+                      setPricePrediction({
+                        ...pricePrediction,
+                        grade: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-3 bg-black/50 border border-green-400/20 rounded-xl focus:ring-2 focus:ring-green-400 text-white hover:bg-green-400/10 transition-all duration-300 outline-none"
+                    placeholder="Enter grade"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-green-300/70 mb-2">
+                    Purity (%)
+                  </label>
+                  <input
+                    type="number"
+                    name="purity"
+                    value={pricePrediction.purity}
+                    onChange={(e) =>
+                      setPricePrediction({
+                        ...pricePrediction,
+                        purity: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-3 bg-black/50 border border-green-400/20 rounded-xl focus:ring-2 focus:ring-green-400 text-white hover:bg-green-400/10 transition-all duration-300 outline-none"
+                    placeholder="Enter purity percentage"
+                    required
+                    min="0"
+                    max="100"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-green-300/70 mb-2">
+                  Quantity (MT)
+                </label>
+                <input
+                  type="number"
+                  name="Quantity_MT"
+                  value={pricePrediction.quantity}
+                  onChange={(e) =>
+                    setPricePrediction({
+                      ...pricePrediction,
+                      quantity: e.target.value,
+                    })
+                  }
+                  className="w-full px-4 py-3 bg-black/50 border border-green-400/20 rounded-xl focus:ring-2 focus:ring-green-400 text-white hover:bg-green-400/10 transition-all duration-300 outline-none"
+                  placeholder="Enter quantity in metric tons"
+                  required
+                  min="0"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-green-400 to-emerald-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition-all duration-300 group relative overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-green-300 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <span className="relative z-10 flex items-center justify-center space-x-2">
+                  <span>Predict Price</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                </span>
+              </button>
+            </form>
+            {predictedPrice && (
+              <div className="mt-6 flex items-center justify-between gap-4">
+                <p className="text-green-400 text-lg font-semibold">
+                  Predicted Price: ₹{predictedPrice}/ton
+                </p>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPricePrediction({
+                      state: "",
+                      city: "",
+                      grade: "",
+                      purity: "",
+                      quantity: "",
+                    })
+                  }
+                  className="bg-red-500 text-white px-4 py-2 rounded-xl font-medium hover:bg-red-600 transition-colors duration-300"
+                >
+                  Reset
+                </button>
+              </div>
             )}
           </div>
         );
@@ -620,9 +884,7 @@ const SupplierDashboard = () => {
         {[...Array(12)].map((_, i) => (
           <div
             key={i}
-            className={`absolute w-2 h-2 bg-green-400/80 rounded-full animate-float-${
-              (i % 6) + 1
-            } shadow-lg shadow-green-400/50`}
+            className={`absolute w-2 h-2 bg-green-400/80 rounded-full shadow-lg shadow-green-400/50`}
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -636,9 +898,7 @@ const SupplierDashboard = () => {
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className={`absolute border-2 border-green-400/60 rounded-full animate-morphing-wave-${
-              (i % 3) + 1
-            } shadow-lg shadow-green-400/30`}
+            className={`absolute border-2 border-green-400/60 rounded-full shadow-lg shadow-green-400/30`}
             style={{
               width: `${100 + i * 40}px`,
               height: `${100 + i * 40}px`,
@@ -675,6 +935,11 @@ const SupplierDashboard = () => {
               { id: "add-listing", label: "Add Ash Listing", icon: Plus },
               { id: "my-listings", label: "My Listings", icon: List },
               { id: "messages", label: "Messages", icon: MessageSquare },
+              {
+                id: "price-predictor",
+                label: "Price Predictor",
+                icon: BarChart2,
+              },
               { id: "settings", label: "Settings", icon: Settings },
             ].map(({ id, label, icon: Icon }, index) => (
               <li key={id}>
@@ -722,13 +987,6 @@ const SupplierDashboard = () => {
           >
             <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-orange-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-500" />
-            <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
-              <Sparkles className="w-4 h-4 text-white animate-sparkle-logout" />
-            </div>
-            <div className="absolute bottom-1 left-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
-              <Sparkles className="w-4 h-4 text-white animate-sparkle-logout-2" />
-            </div>
-            <div className="absolute inset-0 bg-red-500 opacity-0 group-hover:opacity-40 animate-pulse-logout rounded-xl" />
             <span className="relative z-10 flex items-center justify-center space-x-2">
               <span>Logout</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
@@ -753,84 +1011,6 @@ const SupplierDashboard = () => {
           {renderContent()}
         </div>
       </div>
-
-      <style>
-        {`
-          @keyframes float-1 {
-            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.4; }
-            33% { transform: translateY(-25px) translateX(15px) rotate(120deg); opacity: 0.9; }
-            66% { transform: translateY(-10px) translateX(-8px) rotate(240deg); opacity: 0.6; }
-          }
-          @keyframes float-2 {
-            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.5; }
-            33% { transform: translateY(-20px) translateX(-12px) rotate(90deg); opacity: 0.9; }
-            66% { transform: translateY(-30px) translateX(18px) rotate(180deg); opacity: 0.7; }
-          }
-          @keyframes float-3 {
-            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.3; }
-            33% { transform: translateY(-35px) translateX(20px) rotate(150deg); opacity: 0.8; }
-            66% { transform: translateY(-8px) translateX(-15px) rotate(300deg); opacity: 0.5; }
-          }
-          @keyframes float-4 {
-            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.4; }
-            33% { transform: translateY(-18px) translateX(-20px) rotate(60deg); opacity: 0.8; }
-            66% { transform: translateY(-28px) translateX(12px) rotate(270deg); opacity: 0.6; }
-          }
-          @keyframes float-5 {
-            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.3; }
-            33% { transform: translateY(-22px) translateX(25px) rotate(200deg); opacity: 0.7; }
-            66% { transform: translateY(-12px) translateX(-18px) rotate(320deg); opacity: 0.5; }
-          }
-          @keyframes float-6 {
-            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.5; }
-            33% { transform: translateY(-30px) translateX(-25px) rotate(45deg); opacity: 0.9; }
-            66% { transform: translateY(-20px) translateX(22px) rotate(225deg); opacity: 0.6; }
-          }
-          @keyframes morphing-wave-1 {
-            0% { transform: scale(0.5) rotate(0deg); opacity: 0.4; border-radius: 50%; }
-            33% { transform: scale(1.2) rotate(120deg); opacity: 0.2; border-radius: 30%; }
-            66% { transform: scale(0.8) rotate(240deg); opacity: 0.3; border-radius: 60%; }
-            100% { transform: scale(1.5) rotate(360deg); opacity: 0; border-radius: 50%; }
-          }
-          @keyframes morphing-wave-2 {
-            0% { transform: scale(0.3) rotate(0deg); opacity: 0.3; border-radius: 40%; }
-            33% { transform: scale(1) rotate(90deg); opacity: 0.1; border-radius: 70%; }
-            66% { transform: scale(0.7) rotate(180deg); opacity: 0.2; border-radius: 20%; }
-            100% { transform: scale(1.3) rotate(270deg); opacity: 0; border-radius: 50%; }
-          }
-          @keyframes morphing-wave-3 {
-            0% { transform: scale(0.6) rotate(0deg); opacity: 0.2; border-radius: 60%; }
-            33% { transform: scale(1.4) rotate(150deg); opacity: 0.05; border-radius: 40%; }
-            66% { transform: scale(0.9) rotate(300deg); opacity: 0.15; border-radius: 80%; }
-            100% { transform: scale(1.6) rotate(450deg); opacity: 0; border-radius: 50%; }
-          }
-          @keyframes sparkle-logout {
-            0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
-            50% { transform: scale(1.5) rotate(180deg); opacity: 1; }
-          }
-          @keyframes sparkle-logout-2 {
-            0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
-            50% { transform: scale(1.2) rotate(-180deg); opacity: 1; }
-          }
-          @keyframes pulse-logout {
-            0% { transform: scale(0.95); opacity: 0.5; }
-            50% { transform: scale(1.05); opacity: 0.3; }
-            100% { transform: scale(0.95); opacity: 0.5; }
-          }
-          .animate-float-1 { animation: float-1 8s ease-in-out infinite; }
-          .animate-float-2 { animation: float-2 10s ease-in-out infinite; }
-          .animate-float-3 { animation: float-3 7s ease-in-out infinite; }
-          .animate-float-4 { animation: float-4 9s ease-in-out infinite; }
-          .animate-float-5 { animation: float-5 6s ease-in-out infinite; }
-          .animate-float-6 { animation: float-6 11s ease-in-out infinite; }
-          .animate-morphing-wave-1 { animation: morphing-wave-1 6s ease-out infinite; }
-          .animate-morphing-wave-2 { animation: morphing-wave-2 5s ease-out infinite 1s; }
-          .animate-morphing-wave-3 { animation: morphing-wave-3 7s ease-out infinite 2s; }
-          .animate-sparkle-logout { animation: sparkle-logout 1s ease-in-out infinite; }
-          .animate-sparkle-logout-2 { animation: sparkle-logout-2 1s ease-in-out infinite 0.5s; }
-          .animate-pulse-logout { animation: pulse-logout 1.5s ease-in-out infinite; }
-        `}
-      </style>
     </div>
   );
 };

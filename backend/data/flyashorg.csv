@@ -1,121 +1,121 @@
-State,City,Grade,Purity_%,Quantity_MT,Price_Per_MT_INR,Date_Recorded
-West Bengal,Kolkata,Class F,87.8,270,707.0,2025-05-19
-Madhya Pradesh,Indore,Class C,93.77,157,1243.7,2025-09-03
-Gujarat,Vadodara,Class C,86.33,235,871.3,2025-05-14
-West Bengal,Kolkata,Class F,94.66,384,1346.6,2025-03-30
-Madhya Pradesh,Indore,Class C,93.02,310,1312.2,2025-06-04
-Chhattisgarh,Raipur,Class C,90.1,415,1092.0,2025-05-28
-Tamil Nadu,Coimbatore,Class C,90.75,288,1051.5,2025-06-21
-Gujarat,Vadodara,Class C,96.5,245,1137.0,2025-08-29
-Uttar Pradesh,Lucknow,Class C,85.28,140,793.8,2025-08-25
-Maharashtra,Mumbai,Class C,87.51,498,653.1,2025-03-21
-Tamil Nadu,Chennai,Class F,91.3,137,906.0,2025-03-16
-Gujarat,Vadodara,Class C,91.5,350,1506.0,2025-05-13
-Chhattisgarh,Bilaspur,Class C,96.22,415,1412.2,2025-07-04
-Maharashtra,Mumbai,Class C,94.17,238,1197.7,2025-07-15
-Rajasthan,Kota,Class C,95.28,456,1590.8,2025-05-11
-Rajasthan,Udaipur,Class C,95.27,121,1562.7,2025-07-11
-Tamil Nadu,Chennai,Class F,96.6,102,1122.0,2025-06-03
-Rajasthan,Kota,Class F,97.04,133,1388.4,2025-06-02
-Madhya Pradesh,Bhopal,Class F,93.68,146,1311.8,2025-06-20
-Uttar Pradesh,Varanasi,Class C,91.33,262,1239.3,2025-03-15
-Chhattisgarh,Korba,Class F,89.91,346,1524.1,2025-06-29
-Gujarat,Vadodara,Class F,89.1,439,933.0,2025-07-23
-Tamil Nadu,Madurai,Class C,85.02,225,839.2,2025-04-28
-Madhya Pradesh,Satna,Class F,94.01,192,913.1,2025-04-02
-Madhya Pradesh,Satna,Class C,85.9,220,632.0,2025-03-09
-Madhya Pradesh,Bhopal,Class C,95.23,422,1449.3,2025-08-07
-Maharashtra,Pune,Class C,97.91,224,1479.1,2025-08-31
-Tamil Nadu,Chennai,Class C,94.96,189,1231.6,2025-05-07
-West Bengal,Kolkata,Class C,98.64,377,1147.4,2025-03-11
-Chhattisgarh,Bilaspur,Class C,90.01,362,810.1,2025-06-01
-Rajasthan,Udaipur,Class C,96.74,192,1593.4,2025-06-17
-West Bengal,Durgapur,Class C,90.48,475,1433.8,2025-05-12
-Maharashtra,Nagpur,Class F,85.94,169,1187.4,2025-05-10
-Tamil Nadu,Madurai,Class C,91.81,275,705.1,2025-08-14
-Chhattisgarh,Korba,Class C,96.02,109,1479.2,2025-05-17
-Uttar Pradesh,Lucknow,Class C,88.81,500,1489.1,2025-06-21
-Maharashtra,Pune,Class C,93.14,407,704.4,2025-06-04
-West Bengal,Kolkata,Class F,95.93,141,1525.3,2025-06-29
-West Bengal,Durgapur,Class F,89.75,487,756.5,2025-08-31
-West Bengal,Asansol,Class F,97.55,493,1075.5,2025-04-25
-Rajasthan,Jaipur,Class C,85.58,338,740.8,2025-06-09
-Gujarat,Vadodara,Class C,97.17,349,1314.7,2025-03-25
-Uttar Pradesh,Kanpur,Class F,85.15,266,940.5,2025-03-24
-Madhya Pradesh,Satna,Class F,88.55,417,1444.5,2025-06-22
-Uttar Pradesh,Varanasi,Class F,88.64,178,1293.4,2025-07-26
-Uttar Pradesh,Kanpur,Class F,88.56,294,1173.6,2025-05-01
-Uttar Pradesh,Varanasi,Class C,96.63,411,752.3,2025-08-14
-Chhattisgarh,Korba,Class C,86.81,317,1176.1,2025-04-10
-Chhattisgarh,Raipur,Class F,96.16,409,1168.6,2025-08-09
-Maharashtra,Mumbai,Class C,94.81,172,1409.1,2025-06-18
-Gujarat,Surat,Class F,85.61,313,861.1,2025-08-02
-Tamil Nadu,Coimbatore,Class C,98.03,224,837.3,2025-07-09
-Uttar Pradesh,Varanasi,Class F,91.33,497,869.3,2025-04-26
-Maharashtra,Nagpur,Class C,90.64,478,1434.4,2025-03-21
-Madhya Pradesh,Bhopal,Class C,91.8,114,1260.0,2025-05-17
-Madhya Pradesh,Satna,Class F,90.55,410,984.5,2025-05-29
-Maharashtra,Pune,Class C,97.59,72,1270.9,2025-07-22
-Madhya Pradesh,Satna,Class C,86.83,83,1347.3,2025-03-23
-Maharashtra,Mumbai,Class C,98.06,390,1071.6,2025-08-16
-Rajasthan,Udaipur,Class C,88.48,215,1421.8,2025-07-14
-Uttar Pradesh,Lucknow,Class F,94.5,263,706.0,2025-08-27
-Gujarat,Ahmedabad,Class F,88.59,490,768.9,2025-04-05
-Rajasthan,Kota,Class C,92.05,233,1414.5,2025-05-29
-Maharashtra,Mumbai,Class C,85.2,161,729.0,2025-06-05
-Chhattisgarh,Raipur,Class C,93.87,375,882.7,2025-06-05
-Gujarat,Ahmedabad,Class C,97.06,82,1565.6,2025-05-12
-Chhattisgarh,Raipur,Class C,94.92,293,1151.2,2025-05-16
-Rajasthan,Kota,Class C,98.5,472,894.0,2025-07-21
-Tamil Nadu,Chennai,Class F,88.54,437,787.4,2025-05-12
-West Bengal,Asansol,Class C,89.13,92,886.3,2025-04-11
-Madhya Pradesh,Indore,Class C,87.45,197,1426.5,2025-06-02
-West Bengal,Durgapur,Class C,95.56,324,800.6,2025-08-03
-Madhya Pradesh,Bhopal,Class F,87.19,123,759.9,2025-04-10
-Rajasthan,Udaipur,Class C,94.79,188,1409.9,2025-08-12
-Tamil Nadu,Chennai,Class C,94.07,87,738.7,2025-06-29
-Rajasthan,Udaipur,Class C,86.78,81,1368.8,2025-08-22
-Maharashtra,Nagpur,Class F,96.78,62,1329.8,2025-05-07
-Gujarat,Ahmedabad,Class C,85.79,446,1166.9,2025-08-16
-Madhya Pradesh,Bhopal,Class F,95.61,394,944.1,2025-08-19
-Tamil Nadu,Madurai,Class C,95.74,105,1043.4,2025-05-10
-Tamil Nadu,Coimbatore,Class C,94.62,469,1089.2,2025-03-19
-Gujarat,Vadodara,Class C,86.7,140,1038.0,2025-05-07
-Uttar Pradesh,Kanpur,Class F,91.0,428,1334.0,2025-04-07
-Tamil Nadu,Chennai,Class C,89.17,231,1398.7,2025-06-14
-West Bengal,Durgapur,Class C,95.11,261,908.1,2025-05-26
-Gujarat,Vadodara,Class C,92.8,288,1128.0,2025-07-30
-Madhya Pradesh,Indore,Class C,92.23,378,964.3,2025-04-11
-Madhya Pradesh,Bhopal,Class F,87.75,135,740.5,2025-05-13
-Chhattisgarh,Korba,Class C,97.15,474,791.5,2025-04-04
-Rajasthan,Kota,Class F,93.03,153,1042.3,2025-04-02
-Madhya Pradesh,Bhopal,Class C,91.77,200,1157.7,2025-03-31
-Chhattisgarh,Korba,Class C,98.95,133,1126.5,2025-08-11
-West Bengal,Durgapur,Class C,90.87,394,1551.7,2025-04-24
-Uttar Pradesh,Varanasi,Class F,86.09,315,1381.9,2025-08-16
-Uttar Pradesh,Varanasi,Class C,90.22,416,924.2,2025-06-22
-Maharashtra,Nagpur,Class F,97.78,362,1477.8,2025-03-30
-Uttar Pradesh,Kanpur,Class F,87.53,475,665.3,2025-04-21
-Maharashtra,Pune,Class C,94.26,56,1081.6,2025-06-27
-Madhya Pradesh,Bhopal,Class C,96.16,430,1366.6,2025-06-06
-Gujarat,Surat,Class F,92.16,73,957.6,2025-07-14
-Madhya Pradesh,Indore,Class F,94.26,220,772.6,2025-03-20
-West Bengal,Asansol,Class C,87.62,472,1504.2,2025-07-29
-Chhattisgarh,Bilaspur,Class F,93.14,143,825.4,2025-05-07
-Rajasthan,Kota,Class C,87.2,357,1339.0,2025-08-09
-Chhattisgarh,Bilaspur,Class F,95.58,300,787.8,2025-08-30
-Rajasthan,Udaipur,Class C,96.07,85,1539.7,2025-08-30
-Chhattisgarh,Raipur,Class C,98.93,59,1389.3,2025-08-03
-Tamil Nadu,Coimbatore,Class F,86.51,455,968.1,2025-07-27
-Maharashtra,Pune,Class F,91.16,117,995.6,2025-06-18
-Uttar Pradesh,Kanpur,Class F,95.65,230,1113.5,2025-06-24
-Gujarat,Ahmedabad,Class C,89.45,379,982.5,2025-08-29
-Tamil Nadu,Chennai,Class F,86.89,73,1328.9,2025-07-21
-Chhattisgarh,Raipur,Class C,95.45,98,1254.5,2025-07-09
-Tamil Nadu,Madurai,Class F,93.45,336,1558.5,2025-09-03
-Tamil Nadu,Coimbatore,Class C,97.24,133,1487.4,2025-08-09
-Maharashtra,Mumbai,Class F,90.34,316,1251.4,2025-08-23
-Chhattisgarh,Raipur,Class C,94.43,189,1421.3,2025-03-21
-Rajasthan,Udaipur,Class F,95.62,298,1181.2,2025-05-27
-Chhattisgarh,Bilaspur,Class F,95.4,490,943.0,2025-08-24
-Rajasthan,Udaipur,Class C,98.77,372,883.7,2025-08-07
+State,City,Grade,Purity,Quantity,Price,Date_Recorded
+West Bengal,Kolkata,Class F,87.8,270,707,19-05-2025
+Madhya Pradesh,Indore,Class C,93.77,157,1243.7,03-09-2025
+Gujarat,Vadodara,Class C,86.33,235,871.3,14-05-2025
+West Bengal,Kolkata,Class F,94.66,384,1346.6,30-03-2025
+Madhya Pradesh,Indore,Class C,93.02,310,1312.2,04-06-2025
+Chhattisgarh,Raipur,Class C,90.1,415,1092,28-05-2025
+Tamil Nadu,Coimbatore,Class C,90.75,288,1051.5,21-06-2025
+Gujarat,Vadodara,Class C,96.5,245,1137,29-08-2025
+Uttar Pradesh,Lucknow,Class C,85.28,140,793.8,25-08-2025
+Maharashtra,Mumbai,Class C,87.51,498,653.1,21-03-2025
+Tamil Nadu,Chennai,Class F,91.3,137,906,16-03-2025
+Gujarat,Vadodara,Class C,91.5,350,1506,13-05-2025
+Chhattisgarh,Bilaspur,Class C,96.22,415,1412.2,04-07-2025
+Maharashtra,Mumbai,Class C,94.17,238,1197.7,15-07-2025
+Rajasthan,Kota,Class C,95.28,456,1590.8,11-05-2025
+Rajasthan,Udaipur,Class C,95.27,121,1562.7,11-07-2025
+Tamil Nadu,Chennai,Class F,96.6,102,1122,03-06-2025
+Rajasthan,Kota,Class F,97.04,133,1388.4,02-06-2025
+Madhya Pradesh,Bhopal,Class F,93.68,146,1311.8,20-06-2025
+Uttar Pradesh,Varanasi,Class C,91.33,262,1239.3,15-03-2025
+Chhattisgarh,Korba,Class F,89.91,346,1524.1,29-06-2025
+Gujarat,Vadodara,Class F,89.1,439,933,23-07-2025
+Tamil Nadu,Madurai,Class C,85.02,225,839.2,28-04-2025
+Madhya Pradesh,Satna,Class F,94.01,192,913.1,02-04-2025
+Madhya Pradesh,Satna,Class C,85.9,220,632,09-03-2025
+Madhya Pradesh,Bhopal,Class C,95.23,422,1449.3,07-08-2025
+Maharashtra,Pune,Class C,97.91,224,1479.1,31-08-2025
+Tamil Nadu,Chennai,Class C,94.96,189,1231.6,07-05-2025
+West Bengal,Kolkata,Class C,98.64,377,1147.4,11-03-2025
+Chhattisgarh,Bilaspur,Class C,90.01,362,810.1,01-06-2025
+Rajasthan,Udaipur,Class C,96.74,192,1593.4,17-06-2025
+West Bengal,Durgapur,Class C,90.48,475,1433.8,12-05-2025
+Maharashtra,Nagpur,Class F,85.94,169,1187.4,10-05-2025
+Tamil Nadu,Madurai,Class C,91.81,275,705.1,14-08-2025
+Chhattisgarh,Korba,Class C,96.02,109,1479.2,17-05-2025
+Uttar Pradesh,Lucknow,Class C,88.81,500,1489.1,21-06-2025
+Maharashtra,Pune,Class C,93.14,407,704.4,04-06-2025
+West Bengal,Kolkata,Class F,95.93,141,1525.3,29-06-2025
+West Bengal,Durgapur,Class F,89.75,487,756.5,31-08-2025
+West Bengal,Asansol,Class F,97.55,493,1075.5,25-04-2025
+Rajasthan,Jaipur,Class C,85.58,338,740.8,09-06-2025
+Gujarat,Vadodara,Class C,97.17,349,1314.7,25-03-2025
+Uttar Pradesh,Kanpur,Class F,85.15,266,940.5,24-03-2025
+Madhya Pradesh,Satna,Class F,88.55,417,1444.5,22-06-2025
+Uttar Pradesh,Varanasi,Class F,88.64,178,1293.4,26-07-2025
+Uttar Pradesh,Kanpur,Class F,88.56,294,1173.6,01-05-2025
+Uttar Pradesh,Varanasi,Class C,96.63,411,752.3,14-08-2025
+Chhattisgarh,Korba,Class C,86.81,317,1176.1,10-04-2025
+Chhattisgarh,Raipur,Class F,96.16,409,1168.6,09-08-2025
+Maharashtra,Mumbai,Class C,94.81,172,1409.1,18-06-2025
+Gujarat,Surat,Class F,85.61,313,861.1,02-08-2025
+Tamil Nadu,Coimbatore,Class C,98.03,224,837.3,09-07-2025
+Uttar Pradesh,Varanasi,Class F,91.33,497,869.3,26-04-2025
+Maharashtra,Nagpur,Class C,90.64,478,1434.4,21-03-2025
+Madhya Pradesh,Bhopal,Class C,91.8,114,1260,17-05-2025
+Madhya Pradesh,Satna,Class F,90.55,410,984.5,29-05-2025
+Maharashtra,Pune,Class C,97.59,72,1270.9,22-07-2025
+Madhya Pradesh,Satna,Class C,86.83,83,1347.3,23-03-2025
+Maharashtra,Mumbai,Class C,98.06,390,1071.6,16-08-2025
+Rajasthan,Udaipur,Class C,88.48,215,1421.8,14-07-2025
+Uttar Pradesh,Lucknow,Class F,94.5,263,706,27-08-2025
+Gujarat,Ahmedabad,Class F,88.59,490,768.9,05-04-2025
+Rajasthan,Kota,Class C,92.05,233,1414.5,29-05-2025
+Maharashtra,Mumbai,Class C,85.2,161,729,05-06-2025
+Chhattisgarh,Raipur,Class C,93.87,375,882.7,05-06-2025
+Gujarat,Ahmedabad,Class C,97.06,82,1565.6,12-05-2025
+Chhattisgarh,Raipur,Class C,94.92,293,1151.2,16-05-2025
+Rajasthan,Kota,Class C,98.5,472,894,21-07-2025
+Tamil Nadu,Chennai,Class F,88.54,437,787.4,12-05-2025
+West Bengal,Asansol,Class C,89.13,92,886.3,11-04-2025
+Madhya Pradesh,Indore,Class C,87.45,197,1426.5,02-06-2025
+West Bengal,Durgapur,Class C,95.56,324,800.6,03-08-2025
+Madhya Pradesh,Bhopal,Class F,87.19,123,759.9,10-04-2025
+Rajasthan,Udaipur,Class C,94.79,188,1409.9,12-08-2025
+Tamil Nadu,Chennai,Class C,94.07,87,738.7,29-06-2025
+Rajasthan,Udaipur,Class C,86.78,81,1368.8,22-08-2025
+Maharashtra,Nagpur,Class F,96.78,62,1329.8,07-05-2025
+Gujarat,Ahmedabad,Class C,85.79,446,1166.9,16-08-2025
+Madhya Pradesh,Bhopal,Class F,95.61,394,944.1,19-08-2025
+Tamil Nadu,Madurai,Class C,95.74,105,1043.4,10-05-2025
+Tamil Nadu,Coimbatore,Class C,94.62,469,1089.2,19-03-2025
+Gujarat,Vadodara,Class C,86.7,140,1038,07-05-2025
+Uttar Pradesh,Kanpur,Class F,91,428,1334,07-04-2025
+Tamil Nadu,Chennai,Class C,89.17,231,1398.7,14-06-2025
+West Bengal,Durgapur,Class C,95.11,261,908.1,26-05-2025
+Gujarat,Vadodara,Class C,92.8,288,1128,30-07-2025
+Madhya Pradesh,Indore,Class C,92.23,378,964.3,11-04-2025
+Madhya Pradesh,Bhopal,Class F,87.75,135,740.5,13-05-2025
+Chhattisgarh,Korba,Class C,97.15,474,791.5,04-04-2025
+Rajasthan,Kota,Class F,93.03,153,1042.3,02-04-2025
+Madhya Pradesh,Bhopal,Class C,91.77,200,1157.7,31-03-2025
+Chhattisgarh,Korba,Class C,98.95,133,1126.5,11-08-2025
+West Bengal,Durgapur,Class C,90.87,394,1551.7,24-04-2025
+Uttar Pradesh,Varanasi,Class F,86.09,315,1381.9,16-08-2025
+Uttar Pradesh,Varanasi,Class C,90.22,416,924.2,22-06-2025
+Maharashtra,Nagpur,Class F,97.78,362,1477.8,30-03-2025
+Uttar Pradesh,Kanpur,Class F,87.53,475,665.3,21-04-2025
+Maharashtra,Pune,Class C,94.26,56,1081.6,27-06-2025
+Madhya Pradesh,Bhopal,Class C,96.16,430,1366.6,06-06-2025
+Gujarat,Surat,Class F,92.16,73,957.6,14-07-2025
+Madhya Pradesh,Indore,Class F,94.26,220,772.6,20-03-2025
+West Bengal,Asansol,Class C,87.62,472,1504.2,29-07-2025
+Chhattisgarh,Bilaspur,Class F,93.14,143,825.4,07-05-2025
+Rajasthan,Kota,Class C,87.2,357,1339,09-08-2025
+Chhattisgarh,Bilaspur,Class F,95.58,300,787.8,30-08-2025
+Rajasthan,Udaipur,Class C,96.07,85,1539.7,30-08-2025
+Chhattisgarh,Raipur,Class C,98.93,59,1389.3,03-08-2025
+Tamil Nadu,Coimbatore,Class F,86.51,455,968.1,27-07-2025
+Maharashtra,Pune,Class F,91.16,117,995.6,18-06-2025
+Uttar Pradesh,Kanpur,Class F,95.65,230,1113.5,24-06-2025
+Gujarat,Ahmedabad,Class C,89.45,379,982.5,29-08-2025
+Tamil Nadu,Chennai,Class F,86.89,73,1328.9,21-07-2025
+Chhattisgarh,Raipur,Class C,95.45,98,1254.5,09-07-2025
+Tamil Nadu,Madurai,Class F,93.45,336,1558.5,03-09-2025
+Tamil Nadu,Coimbatore,Class C,97.24,133,1487.4,09-08-2025
+Maharashtra,Mumbai,Class F,90.34,316,1251.4,23-08-2025
+Chhattisgarh,Raipur,Class C,94.43,189,1421.3,21-03-2025
+Rajasthan,Udaipur,Class F,95.62,298,1181.2,27-05-2025
+Chhattisgarh,Bilaspur,Class F,95.4,490,943,24-08-2025
+Rajasthan,Udaipur,Class C,98.77,372,883.7,07-08-2025

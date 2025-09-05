@@ -211,14 +211,17 @@ const SupplierDashboard = () => {
 
   const handleSubmitListing = async (e) => {
     e.preventDefault();
+
     if (ashListing.volume <= 0 || ashListing.price <= 0) {
       setError("Volume and price must be positive numbers");
       return;
     }
+
     if (!ashListing.location.trim() || !ashListing.name.trim()) {
       setError("Name and location are required");
       return;
     }
+
     if (!user?.id) {
       setError("User authentication failed. Please log in again.");
       return;
@@ -226,27 +229,27 @@ const SupplierDashboard = () => {
 
     try {
       const token = await getAuthToken();
-      const formData = new FormData();
-      formData.append("name", ashListing.name);
-      formData.append("description", ashListing.description);
-      formData.append("price", ashListing.price);
-      formData.append("quantity_available", ashListing.volume);
-      formData.append("location", ashListing.location);
-      formData.append("supplier_id", user.id);
-      if (labReport) formData.append("labReport", labReport);
 
-      console.log("Submitting listing with user ID:", user.id);
-      for (let [key, value] of formData.entries()) {
-        console.log(`FormData: ${key} = ${value}`);
-      }
+      const payload = {
+        name: ashListing.name,
+        description: ashListing.description,
+        price: ashListing.price,
+        quantity_available: ashListing.volume,
+        location: ashListing.location,
+        supplier_id: user.id,
+      };
+
+      console.log("Submitting listing with payload:", payload);
 
       setIsLoading(true);
+
       const response = await fetch("http://localhost:3000/api/products", {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: formData,
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -260,6 +263,7 @@ const SupplierDashboard = () => {
 
       const data = await response.json();
       console.log("Listing created:", data);
+
       setAshListing({
         name: "",
         volume: "",
@@ -267,7 +271,6 @@ const SupplierDashboard = () => {
         price: "",
         description: "",
       });
-      setLabReport(null);
       fetchListings();
       setError(null);
     } catch (err) {
@@ -547,29 +550,6 @@ const SupplierDashboard = () => {
                   placeholder="Describe the ash quality, specifications, etc."
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-green-300/70 mb-2">
-                  Upload Lab Report
-                </label>
-                <div className="border-2 border-dashed border-green-400/20 rounded-xl p-6 text-center hover:border-green-400 transition-all duration-300 group relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-green-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <Upload className="w-8 h-8 text-green-400/70 mx-auto mb-2 group-hover:text-green-400 group-hover:scale-110 transition-transform duration-300" />
-                  <p className="text-sm text-green-300/70">
-                    {labReport
-                      ? labReport.name
-                      : "Click to upload or drag and drop"}
-                  </p>
-                  <p className="text-xs text-green-300/50">
-                    PDF files only (Max 10MB)
-                  </p>
-                  <input
-                    type="file"
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                    accept=".pdf"
-                    onChange={(e) => setLabReport(e.target.files[0])}
-                  />
-                </div>
-              </div>
               <button
                 type="submit"
                 className="w-full bg-gradient-to-r from-green-400 to-emerald-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition-all duration-300 group relative overflow-hidden"
@@ -583,7 +563,6 @@ const SupplierDashboard = () => {
             </form>
           </div>
         );
-
       case "my-listings":
         return (
           <div className="space-y-6">
@@ -623,7 +602,6 @@ const SupplierDashboard = () => {
                             <span>{listing.location || "N/A"}</span>
                           </div>
                           <div className="flex items-center space-x-1">
-                          
                             <span>₹{listing.price}/ton</span>
                           </div>
                           <div className="flex items-center space-x-1">

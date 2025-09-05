@@ -18,6 +18,8 @@ export const getAllProducts = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
+    console.log("req.body:", req.body); // Debug: see what comes from frontend
+
     const {
       name,
       description,
@@ -37,39 +39,16 @@ export const createProduct = async (req, res) => {
       });
     }
 
-    // Upload lab report if provided
-    let labReportUrl = null;
-    if (req.file) {
-      const fileName = `${supplier_id}/${Date.now()}_${req.file.originalname}`;
-      const { error: uploadError } = await supabase.storage
-        .from("lab-reports")
-        .upload(fileName, req.file.buffer, {
-          contentType: "application/pdf",
-        });
-
-      if (uploadError) {
-        return res.status(500).json({
-          error: `Failed to upload lab report: ${uploadError.message}`,
-        });
-      }
-
-      const { data: urlData } = supabase.storage
-        .from("lab-reports")
-        .getPublicUrl(fileName);
-      labReportUrl = urlData.publicUrl;
-    }
-
     const { data, error } = await supabase
       .from("products")
       .insert([
         {
           name,
-          description,
+          description: description || "",
           price: parseFloat(price),
           quantity_available: parseInt(quantity_available),
           location,
           supplier_id,
-          lab_report_url: labReportUrl,
           created_at: new Date().toISOString(),
         },
       ])
@@ -84,9 +63,11 @@ export const createProduct = async (req, res) => {
 
     res.status(201).json(data);
   } catch (err) {
+    console.error("Create product error:", err);
     res.status(500).json({ error: `Server error: ${err.message}` });
   }
 };
+
 
 export const deleteProduct = async (req, res) => {
   try {

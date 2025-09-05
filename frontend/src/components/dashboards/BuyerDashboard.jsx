@@ -89,7 +89,6 @@ const BuyerDashboard = () => {
         }
         setter(data);
       } else {
-        // Fetch orders and products from backend
         const response = await fetch(`http://localhost:3000/api/${endpoint}`, {
           method: "GET",
           headers: {

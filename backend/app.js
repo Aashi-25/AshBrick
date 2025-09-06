@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import { con } from "./db/supabasesClients.js";
-import { verifyToken, requireBuyer } from "./middleware/verifyToken.js"; // Adjust path as needed
+import { verifyToken, requireBuyer } from "./middleware/verifyToken.js"; 
 
 // Routes import
 import orderrouter from "./routes/orderroute.js";

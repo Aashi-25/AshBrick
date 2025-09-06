@@ -18,27 +18,38 @@ export const getAllProducts = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    console.log("req.body:", req.body); // Debug: see what comes from frontend
+    console.log("req.body:", req.body);
 
-    const {
-      name,
-      description,
-      price,
-      quantity_available,
-      location,
-      supplier_id,
-    } = req.body;
+    const { name, description, price, quantity_available, location } = req.body;
 
-    if (!name || !price || !quantity_available || !location || !supplier_id) {
+    if (!name || !price || !quantity_available || !location) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    if (req.userId !== supplier_id) {
-      return res.status(403).json({
-        error: "Unauthorized: supplier_id must match authenticated user",
-      });
+    const supplier_id = req.userId;
+    if (!supplier_id) {
+      return res
+        .status(403)
+        .json({ error: "Unauthorized: Supplier not authenticated" });
     }
 
+    // Make sure supplier exists in suppliers table
+    const { data: supplier } = await supabase
+      .from("suppliers")
+      .select("id")
+      .eq("id", supplier_id)
+      .maybeSingle();
+
+    if (!supplier) {
+      return res
+        .status(400)
+        .json({
+          error:
+            "Supplier profile not found. Please complete your profile first.",
+        });
+    }
+
+    // Now safe to insert into products
     const { data, error } = await supabase
       .from("products")
       .insert([
@@ -67,7 +78,6 @@ export const createProduct = async (req, res) => {
     res.status(500).json({ error: `Server error: ${err.message}` });
   }
 };
-
 
 export const deleteProduct = async (req, res) => {
   try {

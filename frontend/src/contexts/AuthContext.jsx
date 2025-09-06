@@ -13,70 +13,91 @@ export const AuthProvider = ({ children }) => {
   const handleProfileSetup = async (sessionUser) => {
     try {
       console.log("🔄 Setting up profile for user:", sessionUser);
-      
+
       const { data: existingProfile, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", sessionUser.id)
         .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found, which is okay
+      if (error && error.code !== "PGRST116") {
         console.error("❌ Error checking existing profile:", error);
         throw error;
       }
 
       const metadata = sessionUser.user_metadata || {};
       console.log("📝 User metadata:", metadata);
-      
+
       const getName = () => {
-        if (metadata.name && metadata.name.trim()) return metadata.name.trim();
-        if (metadata.full_name && metadata.full_name.trim()) return metadata.full_name.trim();
+        if (
+          metadata.name &&
+          metadata.name.trim() &&
+          metadata.name !== "Unknown"
+        ) {
+          return metadata.name.trim();
+        }
+        if (
+          metadata.full_name &&
+          metadata.full_name.trim() &&
+          metadata.full_name !== "Unknown"
+        ) {
+          return metadata.full_name.trim();
+        }
         return sessionUser.email?.split("@")[0] || "User";
       };
-      
+
       const fallbackName = getName();
       const fallbackRole = metadata.role || "Buyer";
-      
+
       console.log("📝 Fallback values:", { fallbackName, fallbackRole });
 
       if (!existingProfile) {
         console.log("📝 No existing profile found, creating new one...");
-        
+
         const { data: newProfile } = await authHelpers.createProfile(
           sessionUser.id,
           sessionUser.email,
           fallbackRole,
           fallbackName
         );
-        
+
         const finalProfile = newProfile || {
           id: sessionUser.id,
           role: fallbackRole,
           name: fallbackName,
           email: sessionUser.email,
         };
-        
+
         console.log("✅ New profile created:", finalProfile);
         setProfile(finalProfile);
       } else {
         console.log("✅ Existing profile found:", existingProfile);
-        
-        const shouldUpdateName = !existingProfile.name || 
-                                existingProfile.name === "User" || 
-                                existingProfile.name === sessionUser.email?.split("@")[0];
-        
-        if (shouldUpdateName && fallbackName !== "User" && fallbackName !== sessionUser.email?.split("@")[0]) {
+
+        const shouldUpdateName =
+          (!existingProfile.name ||
+            ["User", "Unknown", sessionUser.email?.split("@")[0]].includes(
+              existingProfile.name
+            )) &&
+          fallbackName !== "User" &&
+          fallbackName !== "Unknown" &&
+          fallbackName !== sessionUser.email?.split("@")[0];
+
+        if (shouldUpdateName) {
           console.log("🔄 Updating profile with better name:", fallbackName);
-          
+
           const { data: updatedProfile } = await authHelpers.updateProfile(
-            sessionUser.id, 
-            { name: fallbackName }
+            sessionUser.id,
+            {
+              name: fallbackName,
+            }
           );
-          
-          setProfile(updatedProfile || {
-            ...existingProfile,
-            name: fallbackName,
-          });
+
+          setProfile(
+            updatedProfile || {
+              ...existingProfile,
+              name: fallbackName,
+            }
+          );
         } else {
           setProfile({
             id: existingProfile.id,
@@ -91,9 +112,11 @@ export const AuthProvider = ({ children }) => {
       setProfile({
         id: sessionUser.id,
         role: sessionUser.user_metadata?.role || "Buyer",
-        name: sessionUser.user_metadata?.name || 
-              sessionUser.user_metadata?.full_name || 
-              sessionUser.email?.split("@")[0] || "User",
+        name:
+          sessionUser.user_metadata?.name ||
+          sessionUser.user_metadata?.full_name ||
+          sessionUser.email?.split("@")[0] ||
+          "User",
         email: sessionUser.email,
       });
     }
@@ -104,18 +127,19 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       try {
         console.log("🔄 Initializing session...");
-        
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
         if (error) {
           console.error("❌ Session initialization error:", error);
           return;
         }
-        
+
         console.log("📝 Current session:", session);
-        
         setUser(session?.user ?? null);
-        
+
         if (session?.user) {
           await handleProfileSetup(session.user);
         }
@@ -128,19 +152,26 @@ export const AuthProvider = ({ children }) => {
 
     initializeSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("🔄 Auth state changed:", event, session?.user?.id);
-      
-      setUser(session?.user ?? null);
 
       if (event === "SIGNED_IN" && session?.user) {
-        setLoading(true);
-        await handleProfileSetup(session.user);
-        setLoading(false);
-        navigate("/dashboard");
+        // Only run if profile is not set
+        if (!profile) {
+          setLoading(true);
+          setUser(session.user);
+          await handleProfileSetup(session.user);
+          setLoading(false);
+          navigate("/dashboard");
+        }
       } else if (event === "SIGNED_OUT") {
+        setUser(null);
         setProfile(null);
         navigate("/login");
+      } else {
+        setUser(session?.user ?? null);
       }
     });
 
@@ -167,7 +198,9 @@ export const AuthProvider = ({ children }) => {
           {[...Array(8)].map((_, i) => (
             <div
               key={i}
-              className={`absolute w-2 h-2 bg-green-400/60 rounded-full animate-float-${(i % 3) + 1} shadow-md shadow-green-400/30`}
+              className={`absolute w-2 h-2 bg-green-400/60 rounded-full animate-float-${
+                (i % 3) + 1
+              } shadow-md shadow-green-400/30`}
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
@@ -185,23 +218,72 @@ export const AuthProvider = ({ children }) => {
           <p className="text-green-300/70 text-lg font-medium">Loading...</p>
         </div>
         <style jsx>{`
-          @keyframes float-1 { 0%,100% { transform: translateY(0) translateX(0) rotate(0deg); opacity:0.4; } 50% { transform: translateY(-15px) translateX(8px) rotate(90deg); opacity:0.7; } }
-          @keyframes float-2 { 0%,100% { transform: translateY(0) translateX(0) rotate(0deg); opacity:0.3; } 50% { transform: translateY(-12px) translateX(-6px) rotate(-90deg); opacity:0.6; } }
-          @keyframes float-3 { 0%,100% { transform: translateY(0) translateX(0) rotate(0deg); opacity:0.5; } 50% { transform: translateY(-18px) translateX(10px) rotate(180deg); opacity:0.8; } }
-          @keyframes pulse-ring { 0% { transform: scale(0.8); opacity:0.5; } 50% { transform: scale(1.2); opacity:0.2; } 100% { transform: scale(1.6); opacity:0; } }
-          .animate-float-1 { animation: float-1 6s ease-in-out infinite; }
-          .animate-float-2 { animation: float-2 7s ease-in-out infinite; }
-          .animate-float-3 { animation: float-3 5s ease-in-out infinite; }
-          .animate-pulse-ring { animation: pulse-ring 1.5s ease-out infinite; }
+          @keyframes float-1 {
+            0%,
+            100% {
+              transform: translateY(0) translateX(0) rotate(0deg);
+              opacity: 0.4;
+            }
+            50% {
+              transform: translateY(-15px) translateX(8px) rotate(90deg);
+              opacity: 0.7;
+            }
+          }
+          @keyframes float-2 {
+            0%,
+            100% {
+              transform: translateY(0) translateX(0) rotate(0deg);
+              opacity: 0.3;
+            }
+            50% {
+              transform: translateY(-12px) translateX(-6px) rotate(-90deg);
+              opacity: 0.6;
+            }
+          }
+          @keyframes float-3 {
+            0%,
+            100% {
+              transform: translateY(0) translateX(0) rotate(0deg);
+              opacity: 0.5;
+            }
+            50% {
+              transform: translateY(-18px) translateX(10px) rotate(180deg);
+              opacity: 0.8;
+            }
+          }
+          @keyframes pulse-ring {
+            0% {
+              transform: scale(0.8);
+              opacity: 0.5;
+            }
+            50% {
+              transform: scale(1.2);
+              opacity: 0.2;
+            }
+            100% {
+              transform: scale(1.6);
+              opacity: 0;
+            }
+          }
+          .animate-float-1 {
+            animation: float-1 6s ease-in-out infinite;
+          }
+          .animate-float-2 {
+            animation: float-2 7s ease-in-out infinite;
+          }
+          .animate-float-3 {
+            animation: float-3 5s ease-in-out infinite;
+          }
+          .animate-pulse-ring {
+            animation: pulse-ring 1.5s ease-out infinite;
+          }
         `}</style>
       </div>
     );
   }
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 

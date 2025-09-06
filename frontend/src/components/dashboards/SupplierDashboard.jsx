@@ -208,82 +208,81 @@ const SupplierDashboard = () => {
       setIsLoading(false);
     }
   };
+const handleSubmitListing = async (e) => {
+  e.preventDefault();
 
-  const handleSubmitListing = async (e) => {
-    e.preventDefault();
+  if (ashListing.volume <= 0 || ashListing.price <= 0) {
+    setError("Volume and price must be positive numbers");
+    return;
+  }
 
-    if (ashListing.volume <= 0 || ashListing.price <= 0) {
-      setError("Volume and price must be positive numbers");
-      return;
-    }
+  if (!ashListing.location.trim() || !ashListing.name.trim()) {
+    setError("Name and location are required");
+    return;
+  }
 
-    if (!ashListing.location.trim() || !ashListing.name.trim()) {
-      setError("Name and location are required");
-      return;
-    }
+  if (!user?.id) {
+    setError("User authentication failed. Please log in again.");
+    return;
+  }
 
-    if (!user?.id) {
-      setError("User authentication failed. Please log in again.");
-      return;
-    }
+  try {
+    const token = await getAuthToken();
 
-    try {
-      const token = await getAuthToken();
+    const payload = {
+      name: ashListing.name,
+      description: ashListing.description,
+      price: ashListing.price,
+      quantity_available: ashListing.volume,
+      location: ashListing.location,
+    };
 
-      const payload = {
-        name: ashListing.name,
-        description: ashListing.description,
-        price: ashListing.price,
-        quantity_available: ashListing.volume,
-        location: ashListing.location,
-        supplier_id: user.id,
-      };
+    console.log("Submitting listing with payload:", payload);
 
-      console.log("Submitting listing with payload:", payload);
+    setIsLoading(true);
 
-      setIsLoading(true);
+    const response = await fetch("http://localhost:3000/api/products", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
 
-      const response = await fetch("http://localhost:3000/api/products", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          `Failed to create listing: ${response.status} - ${
-            errorData.error || response.statusText
-          }`
-        );
-      }
-
-      const data = await response.json();
-      console.log("Listing created:", data);
-
-      setAshListing({
-        name: "",
-        volume: "",
-        location: "",
-        price: "",
-        description: "",
-      });
-      fetchListings();
-      setError(null);
-    } catch (err) {
-      console.error("Submit error:", err);
-      setError(
-        err.message.includes("foreign key")
-          ? "Failed to create listing: Invalid supplier ID. Please log out and log in again."
-          : err.message
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        `Failed to create listing: ${response.status} - ${
+          errorData.error || response.statusText
+        }`
       );
-    } finally {
-      setIsLoading(false);
     }
-  };
+
+    const data = await response.json();
+    console.log("Listing created:", data);
+
+    setAshListing({
+      name: "",
+      volume: "",
+      location: "",
+      price: "",
+      description: "",
+    });
+    fetchListings();
+    setError(null);
+  } catch (err) {
+    console.error("Submit error:", err);
+    setError(
+      err.message.includes("foreign key")
+        ? "Failed to create listing: Invalid supplier session. Please log out and log in again."
+        : err.message
+    );
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const handleSettingsSubmit = async (e) => {
     e.preventDefault();
